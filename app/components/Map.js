@@ -67,6 +67,7 @@ var Map = React.createClass({
   generateRandomCoords: function() {
     var lat = this.getRandomArbitrary(17.127410, 60.7211)
     var lng = this.getRandomArbitrary(-135.056845, -61.846772)
+    var size = this.getRandomArbitrary(0, 1)
 
     // Adding a marker to each location
     this.addMarker(lat, lng);
@@ -82,13 +83,34 @@ var Map = React.createClass({
   /**
   * Create a map in the div with id #map, using params provided
   */
-  createMap: function(initialLat, initialLong, initialZoom) {
-    return new GMaps({
-      el: '#map',
+  createMap: function(initialLat, initialLng, initialZoom) {
+    var mapOptions = {
       zoom: initialZoom,
-      lat: initialLat,
-      lng: initialLong
-    })
+      center: {lat: initialLat, lng: initialLng}
+    };
+
+    var map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+    map.data.setStyle(function(sentimentValue) {
+      return {
+        icon: getCircle(sentimentValue)
+      }
+    });
+
+    return map;
+
+  },
+
+  getCirle: function(sentimentValue) {
+    var circle = {
+      path: google.maps.SymbolPath.CIRCLE,
+      fillColor: 'red',
+      fillOpacity: .2,
+      scale: Math.pow(2, sentimentValue) / 2,
+      strokeColor: 'white',
+      strokeWeight: .5
+    }
+    return circle
   },
   
   /**
@@ -99,7 +121,8 @@ var Map = React.createClass({
     this.markers.push({lat: lat, lng: lng});
 
     // actually add the marker to the map
-    this.map.addMarker({lat: lat, lng: lng});
+    // this.map.addMarker({lat: lat, lng: lng});
+    // this.map.data.setStyle(function(size))
   }
 });
 
