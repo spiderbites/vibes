@@ -3,13 +3,19 @@ var PrimaryPane = require('./PrimaryPane');
 var SidePane = require('./SidePane');
 
 var App = React.createClass({
+  getInitialState: function() {
+    return { sideshow: '' }
+  },
   render: function() {
     return (
-      <div>
-        <PrimaryPane/>
-        <SidePane/>
+      <div onClick={this.handleSideshow}>
+        <PrimaryPane className={this.state.sideshow}/>
+        <SidePane className={this.state.sideshow}/>
       </div>
     )
+  },
+  handleSideshow: function() {
+    this.setState({sideshow: this.state.sideshow === '' ? 'sideshow' : ''});
   }
 });
 

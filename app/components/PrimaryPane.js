@@ -1,14 +1,19 @@
 var React = require('react');
-// var Header = require('Header');
-// var Navbar = require('Navbar');
-// var Content = require('');
-// var Slider = require('Slider');
+var Header = require('./Header');
+var Navbar = require('./Navbar');
+var Content = require('./Content');
+var Slider = require('./Slider');
 
 var PrimaryPane = React.createClass({
   render: function() {
     return (
-      <div className="primary-pane">
-        <h1>I am a PrimaryPane.</h1>
+      <div className={"primary-pane " + this.props.className}>
+        <div className="arbitrary">
+          <Header/>
+          <Navbar/>
+          <Content/>
+          <Slider/>
+        </div>
       </div>
     )
   }

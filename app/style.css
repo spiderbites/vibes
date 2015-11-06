@@ -1,10 +1,28 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  min-height: 765px;
+}
+
+#app, #app > div {
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+}
+
+#app > div {
+  position: relative;
+}
+
 .primary-pane {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  /*right: 0;*/
-  right: 25%;
+  padding-top: 20px;
+  height: 100%;
+  width: 100%;
   display: inline-block;
   background-color: lightblue;
   transition: all 1s ease;
@@ -12,20 +30,52 @@
 
 .side-pane {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  /*left: 100%;*/
-  left: 75%;
-  right: 0;
+  right: -25%;
+  height: 100%;
+  width: 25%;
   display: inline-block;
   background-color: lightgreen;
   transition: all 1s ease;
 }
 
-.primary-pane.side-showing {
-  right: 25%;
+.primary-pane.sideshow {
+  width: 75%;
 }
 
-.side-pane.side-showing {
-  left: 75%;
+.side-pane.sideshow {
+  right: 0;
+}
+
+.arbitrary {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.arbitrary div {
+  background-color: linen;
+  margin: 20px auto;
+  width: 80%;
+  text-align: center;
+}
+
+.header, .navbar, .slider {
+  height: 75px;
+}
+
+.slider {
+  position: absolute;
+  bottom: 60px;
+  left: 0;
+  right: 0;
+}
+
+.content {
+  position: absolute;
+  top: 170px;
+  bottom: 155px;
+  left: 0;
+  right: 0;
+  height: auto;
+  min-height: 400px;
 }
