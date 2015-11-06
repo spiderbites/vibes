@@ -1,9 +1,10 @@
 var React = require('react');
+var Map = require('./Map');
 
 var App = React.createClass({
   render: function() {
     return (
-      <h1>Hello, world!</h1>
+      <Map url="" pollInterval={2000} />
     )
   }
 });

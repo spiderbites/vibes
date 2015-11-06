@@ -1,0 +1,23 @@
+html, body {
+  height:100%;
+  margin:0;
+  padding:0;
+}
+
+.container {
+  max-width: 980px;
+  text-align: center;
+  margin: 20px auto;
+}
+
+.map-holder {
+  margin: 0 auto;
+  background-color: #FCFCFC;
+  position: relative;
+  border-radius: 2px;
+}
+
+#map {
+  height: 600px;
+  margin: 0 auto;
+}
