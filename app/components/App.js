@@ -1,9 +1,14 @@
 var React = require('react');
+var PrimaryPane = require('./PrimaryPane');
+var SidePane = require('./SidePane');
 
 var App = React.createClass({
   render: function() {
     return (
-      <h1>Hello, world!</h1>
+      <div>
+        <PrimaryPane/>
+        <SidePane/>
+      </div>
     )
   }
 });

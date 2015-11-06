@@ -1,0 +1,31 @@
+.primary-pane {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  /*right: 0;*/
+  right: 25%;
+  display: inline-block;
+  background-color: lightblue;
+  transition: all 1s ease;
+}
+
+.side-pane {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  /*left: 100%;*/
+  left: 75%;
+  right: 0;
+  display: inline-block;
+  background-color: lightgreen;
+  transition: all 1s ease;
+}
+
+.primary-pane.side-showing {
+  right: 25%;
+}
+
+.side-pane.side-showing {
+  left: 75%;
+}
