@@ -85,7 +85,8 @@ var Map = React.createClass({
   createMap: function(initialLat, initialLng, initialZoom) {
     var mapOptions = {
       zoom: initialZoom,
-      center: {lat: initialLat, lng: initialLng}
+      center: {lat: initialLat, lng: initialLng},
+      mapTypeId: google.maps.MapTypeId.TERRAIN
     };
 
     var map = new google.maps.Map(document.getElementById('map'), mapOptions);
