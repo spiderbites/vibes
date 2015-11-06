@@ -8,11 +8,10 @@ var Map = React.createClass({
   * * * * * * * * * * * */ 
   componentDidMount: function(){
     // hardcoding Toronto to be at the center for now with no marker.
-    this.map = this.createMap(43.653226, -79.383184, 5);
+    this.map = this.createMap(43.653226, -79.383184, 3);
 
     // keep track of markers
     this.markers = [];
-
     // for testing purposes, generate and add random markers in north america
     setInterval(this.generateRandomCoords, this.props.pollInterval);
   },
@@ -67,10 +66,10 @@ var Map = React.createClass({
   generateRandomCoords: function() {
     var lat = this.getRandomArbitrary(17.127410, 60.7211)
     var lng = this.getRandomArbitrary(-135.056845, -61.846772)
-    var size = this.getRandomArbitrary(0, 1)
+    var sentimentValue = this.getRandomArbitrary(1,5)
 
     // Adding a marker to each location
-    this.addMarker(lat, lng);
+    this.addMarker(lat, lng, sentimentValue);
   },
 
   /**
@@ -90,10 +89,10 @@ var Map = React.createClass({
     };
 
     var map = new google.maps.Map(document.getElementById('map'), mapOptions);
-
+    var that = this;
     map.data.setStyle(function(sentimentValue) {
       return {
-        icon: getCircle(sentimentValue)
+        icon: that.getCircle(sentimentValue)
       }
     });
 
@@ -101,11 +100,11 @@ var Map = React.createClass({
 
   },
 
-  getCirle: function(sentimentValue) {
+  getCircle: function(sentimentValue) {
     var circle = {
       path: google.maps.SymbolPath.CIRCLE,
       fillColor: 'red',
-      fillOpacity: .2,
+      fillOpacity: .4,
       scale: Math.pow(2, sentimentValue) / 2,
       strokeColor: 'white',
       strokeWeight: .5
@@ -116,13 +115,25 @@ var Map = React.createClass({
   /**
   * Create and add a new marker at lat, lng
   */
-  addMarker: function(lat, lng) {
+  addMarker: function(lat, lng, sentimentValue) {
     // add to the markers array
     this.markers.push({lat: lat, lng: lng});
 
+    console.log(lat, lng);
+
     // actually add the marker to the map
-    // this.map.addMarker({lat: lat, lng: lng});
-    // this.map.data.setStyle(function(size))
+    var marker = new google.maps.Marker({
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: 'red',
+        fillOpacity: .2,
+        strokeColor: 'white',
+        strokeWeight: .5,
+        scale: Math.pow(2, sentimentValue) / 2
+      },
+      position: {lat: lat, lng: lng},
+      map: this.map
+    });
   }
 });
 
