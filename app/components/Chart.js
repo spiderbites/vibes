@@ -5,9 +5,17 @@ var RChartJS = require("react-chartjs");
 var Chart = React.createClass({
 
   componentDidMount: function(){
+    console.log('in componentDidMount');
     var legend = this.refs.lineChart.state.chart.generateLegend();
     this.setState({
       legend: legend
+    });
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    var that = this;
+    nextProps.data.forEach(function(element, index) {
+      that.state.data.datasets[index].data = element;
     });
   },
 
@@ -50,24 +58,15 @@ var Chart = React.createClass({
     return {data: data};
   },
 
-
-  // this.props.data is an object with
-  //    labels
-  //    an array of data arrays...
-  regen: function() {
-    var curData = this.state.data;
-    curData.labels = this.props.labels;
-    this.props.data.forEach(function(element, index) {
-      curData.datasets[index].data = element;
-    })
-    this.setState({data: curData});
-  },
-
   render: function(){
     var legend = this.state && this.state.legend || '';
+    console.log('in render');
+    // console.log(this.props.data[0]);
+    // console.log(this.state.data.datasets[0].data);
+
     return (
       <div>
-        <RChartJS.Line data={this.state.data} options={this.props.options} width="600" height="250" ref="lineChart"/>
+        <RChartJS.Line data={this.state.data} options={this.props.options} width="600" height="250" ref="lineChart" />
         <div dangerouslySetInnerHTML={{ __html: legend }} />
       </div>
     );
