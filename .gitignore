@@ -2,3 +2,9 @@
 npm-debug.log
 app/node_modules
 app/bundle.js
+
+/.bundle
+api/log/*
+!api/log/.keep
+api/tmp
+api/.env
