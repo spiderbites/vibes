@@ -6,8 +6,6 @@
 html, body {
   height: 100%;
   min-height: 765px;
-  margin: 0;
-  padding: 0;
 }
 
 body {
@@ -57,7 +55,7 @@ body {
   width: 100%;
 }
 
-.arbitrary > div {
+.arbitrary div {
   margin: 20px auto;
   width: 80%;
   text-align: center;
@@ -68,20 +66,6 @@ body {
 
 .header, .navbar, .slider {
   height: 75px;
-}
-
-.navbar ul {
-  width: 100%;
-  list-style: none;
-  position: relative;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.navbar ul li {
-  display: inline-block;
-  width: 50%;
-  font-size: 36px;
 }
 
 .slider {
@@ -99,15 +83,6 @@ body {
   right: 0;
   height: auto;
   min-height: 400px;
-}
-
-.map-holder {
-  position: relative;
-  height: 100%;
-}
-
-#map {
-  height: 100%;
 }
 
 .tweet {

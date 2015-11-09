@@ -1,10 +1,11 @@
 var React = require('react');
+var Map = require('./Map');
 
 var Content = React.createClass({
   render: function() {
     return (
       <div className={"content"}>
-        <h1>I am a Content.</h1>
+        <Map url="" pollInterval={2000} />
       </div>
     )
   }
