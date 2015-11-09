@@ -63,28 +63,14 @@ class WatsonTwitterApi
   end
 
   def initialize(parameters, changes)
-    # @term = parameters[:q]
-    # time = invoke(convert_time_to_method(parameters))
-    # @time = posted_format(time)
-    # @place = location_format(parameters[:locations])
-    # @size = size_format(500)
-    # query = [@term, @time, @place].reduce {|a, e| a + ' ' + e }
-    # @query = URI.encode(query)
-    # @cities = cities
-    @ordered_by = parameters[:ordered_by]
+    @order_by = parameters[:order_by].to_sym
+
+    @data = method(('order_by_' + @order_by.to_s).to_sym).call()
+    @slices = (parameters[:in_slices_of] || 48).to_i
     puts parameters
     puts changes
     @query = create_query(parameters, changes) + size_format(parameters[:by_chunks_of])
     puts @query
-  end
-
-  def test
-    query = @query
-    response = self.class.get("/messages/search?q=#{query}", @@auth)
-    following_stats = response['related']['next']['href'].split('?q=')[1]
-    total = response['search']['results'].to_i
-    from = response['related']['next']['href'].split('&').select {|e| e.include?('from=') }[0].split('=')[1].to_i
-    ["Empty", following_stats]
   end
 
   def get
@@ -93,41 +79,12 @@ class WatsonTwitterApi
     following_stats = response['related']['next']['href'].split('?q=')[1]
     total = response['search']['results'].to_i
     from = response['related']['next']['href'].split('&').select {|e| e.include?('from=') }[0].split('=')[1].to_i
-    next_calls = {
-      following_stats: following_stats,
-      total: total,
-      from: from
-    }
+    data = scrape(response)
     [{
       place: (@place.split(':')[1] if @place),
       quantity: response['search']['results'],
-      data: method(('order_by_' + @ordered_by.to_s).to_sym).call(scrape(response)),
+      data: data
     }, following_stats ]
-  end
-
-  def get_sentiments
-   next_calls = []
-   [ @@sentiments.map do |e|
-      query = @query + URI.encode(' ' + e)
-      response1 = self.class.get("/messages/count?q=#{query}", @@auth)
-      response2 = self.class.get("/messages/search?q=#{query}", @@auth)
-      following_stats = response2['related']['next']['href'].split('?q=')[1]
-      total = response2['search']['results'].to_i
-      from = response2['related']['next']['href'].split('&').select {|e| e.include?('from=') }[0].split('=')[1].to_i
-      next_calls << {
-        result: e.split(':')[1],
-        following_stats: following_stats,
-        total: total,
-        from: from
-      }
-
-      {
-        place: @place.split(':')[1],
-        result: e.split(':')[1],
-        quantity: response1['search']['results'],
-        data: order_by_gender(scrape(response2)),
-      }
-    end, next_calls]
   end
 
   def search
@@ -183,29 +140,72 @@ class WatsonTwitterApi
     }
   end
 
+  def extract(e)
+    {
+      gender: (e['cde']['author']['gender'] rescue "").to_s,
+      location1: (e['cde']['author']['location'] rescue nil),
+      location2: (e['message']['actor']['location'] rescue nil),
+      location3: (e['message']['object']['actor']['loaction'] rescue nil),
+      geo: (e['message']['gnip']['profileLocations'][0]['geo']['coordinates'] rescue nil),
+      parentHood: (e['cde']['author']['isParent'] rescue nil),
+      maritalStatus: (e['cde']['author']['isMarried'] rescue nil),
+      sentiment: (e['cde']['content']['sentiment']['polarity'] rescue "").to_s,
+      time: (e['message']['postedTime'] rescue nil),
+      link: (e['message']['link'] rescue nil),
+      text: (e['message']['body'] rescue nil),
+      username: (e['message']['actor']['preferredUsername'] rescue nil),
+      retweets: (e['message']['retweetCount'] rescue nil),
+      favoritesCount: (e['message']['favoritesCount'] rescue nil),
+      hashTags: (e['message']['twitter_entities']['hastags'] rescue nil),
+      userMentions: (e['message']['twitter_entities']['userMentions'] rescue nil),
+      symbols: (e['message']['twitter_entities']['symbols'] rescue nil),
+      twitterLanguage: (e['message']['twitter_entities']['twitter_lang'] rescue nil)
+    }
+  end
+
   def scrape(response)
-    r = response['tweets'].map do |e|
-      {
-        gender: (e['cde']['author']['gender'] rescue ""),
-        location1: (e['cde']['author']['location'] rescue nil),
-        location2: (e['message']['actor']['location'] rescue nil),
-        location3: (e['message']['object']['actor']['loaction'] rescue nil),
-        geo: (e['message']['gnip']['profileLocations'][0]['geo']['coordinates'] rescue nil),
-        parentHood: (e['cde']['author']['isParent'] rescue nil),
-        maritalStatus: (e['cde']['author']['isMarried'] rescue nil),
-        sentiment: (e['cde']['content']['sentiment']['polarity'] rescue ""),
-        time: (e['message']['postedTime'] rescue nil),
-        link: (e['message']['link'] rescue nil),
-        text: (e['message']['body'] rescue nil),
-        username: (e['message']['actor']['preferredUsername'] rescue nil),
-        retweets: (e['message']['retweetCount'] rescue nil),
-        favoritesCount: (e['message']['favoritesCount'] rescue nil),
-        hashTags: (e['message']['twitter_entities']['hastags'] rescue nil),
-        userMentions: (e['message']['twitter_entities']['userMentions'] rescue nil),
-        symbols: (e['message']['twitter_entities']['symbols'] rescue nil),
-        twitterLanguage: (e['message']['twitter_entities']['twitter_lang'] rescue nil)
-      }
+    response['tweets'].map do |e|
+      data = extract(e)
+      key = data[@order_by].to_sym
+      @data[key] << data
     end
-    r
+    @data
   end
 end
+  # def get_sentiments
+  #  next_calls = []
+  #  [ @@sentiments.map do |e|
+  #     query = @query + URI.encode(' ' + e)
+  #     response1 = self.class.get("/messages/count?q=#{query}", @@auth)
+  #     response2 = self.class.get("/messages/search?q=#{query}", @@auth)
+  #     following_stats = response2['related']['next']['href'].split('?q=')[1]
+  #     total = response2['search']['results'].to_i
+  #     from = response2['related']['next']['href'].split('&').select {|e| e.include?('from=') }[0].split('=')[1].to_i
+  #     next_calls << {
+  #       result: e.split(':')[1],
+  #       following_stats: following_stats,
+  #       total: total,
+  #       from: from
+  #     }
+
+  #     {
+  #       place: @place.split(':')[1],
+  #       result: e.split(':')[1],
+  #       quantity: response1['search']['results'],
+  #       data: order_by_gender(scrape(response2)),
+  #     }
+  #   end, next_calls]
+  # end
+  # def test
+  #   query = @query
+  #   response = self.class.get("/messages/search?q=#{query}", @@auth)
+  #   following_stats = response['related']['next']['href'].split('?q=')[1]
+  #   total = response['search']['results'].to_i
+  #   from = response['related']['next']['href'].split('&').select {|e| e.include?('from=') }[0].split('=')[1].to_i
+  #   ["Empty", following_stats]
+  # end
+    # next_calls = {
+    #   following_stats: following_stats,
+    #   total: total,
+    #   from: from
+    # }

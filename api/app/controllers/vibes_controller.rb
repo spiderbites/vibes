@@ -39,7 +39,7 @@ class VibesController < ApplicationController
 
     def check_params
       params.permit(:q, :seconds, :minutes, :hours, :days, :weeks, :months,
-                    :years, :range, :ordered_by, :locations, :gender,
+                    :years, :range, :order_by, :locations, :gender,
                     :sentiment, :by_chunks_of, :in_slices_of)
     end
 
