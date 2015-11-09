@@ -4,7 +4,7 @@ var Slider = React.createClass({
   render: function() {
     return (
       <div className={"slider"}>
-        <h1>I am a Slider.</h1>
+        <input type="range"/>
       </div>
     )
   }
