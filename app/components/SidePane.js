@@ -21,10 +21,6 @@ var SidePane = React.createClass({
         <Tweet/>
         <Tweet/>
         <Tweet/>
-        <Tweet/>
-        <Tweet/>
-        <Tweet/>
-        <Tweet/>
       </div>
     )
   }
