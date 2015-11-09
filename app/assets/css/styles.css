@@ -21,3 +21,7 @@ html, body {
   height: 600px;
   margin: 0 auto;
 }
+
+ul.line-legend {
+  list-style:none;
+}
