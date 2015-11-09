@@ -4,7 +4,7 @@ var Header = React.createClass({
   render: function() {
     return (
       <div className={"header"}>
-        <h1>I am a Header.</h1>
+        <input type="search" placeholder="Twitter username"/>
       </div>
     )
   }

@@ -61,9 +61,9 @@ body {
   margin: 20px auto;
   width: 80%;
   text-align: center;
-  background: linear-gradient(#484e55, #3a3f44 60%, #313539);
+  /*background: linear-gradient(#484e55, #3a3f44 60%, #313539);
   border: 1px solid rgba(0,0,0,0.6);
-  border-radius: 4px;
+  border-radius: 4px;*/
 }
 
 .header, .navbar, .slider {
@@ -91,12 +91,56 @@ body {
   right: 0;
 }
 
-/*.slider input {
-  width: 80%;
+input {
+  outline: none;
+}
+input[type=search] {
+  -webkit-appearance: textfield;
+  -webkit-box-sizing: content-box;
+  font-family: inherit;
+  font-size: 100%;
+}
+input::-webkit-search-decoration,
+input::-webkit-search-cancel-button {
+  display: none; 
+}
+
+
+input[type=search] {
+  background: #ededed url(http://static.tumblr.com/ftv85bp/MIXmud4tx/search-icon.png) no-repeat 9px center;
+  border: solid 1px #ccc;
+  padding: 9px 10px 9px 32px;
+  width: 120px;
+  
+  -webkit-border-radius: 10em;
+  -moz-border-radius: 10em;
+  border-radius: 10em;
+  
+  -webkit-transition: all .5s;
+  -moz-transition: all .5s;
+  transition: all .5s;
+
   position: relative;
   top: 50%;
   transform: translateY(-50%);
-}*/
+}
+input[type=search]:focus {
+  width: 200px;
+  background-color: #fff;
+  border-color: #66CC75;
+  
+  -webkit-box-shadow: 0 0 5px rgba(109,207,246,.5);
+  -moz-box-shadow: 0 0 5px rgba(109,207,246,.5);
+  box-shadow: 0 0 5px rgba(109,207,246,.5);
+}
+
+
+input:-moz-placeholder {
+  color: #999;
+}
+input::-webkit-input-placeholder {
+  color: #999;
+}
 
 input[type=range] {
   -webkit-appearance: none;
@@ -116,7 +160,7 @@ input[type=range]::-webkit-slider-runnable-track {
   cursor: pointer;
   animate: 0.2s;
   box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: #3071a9;
+  background: #909090;
   border-radius: 1.3px;
   border: 0.2px solid #010101;
 }
@@ -132,7 +176,7 @@ input[type=range]::-webkit-slider-thumb {
   margin-top: -14px;
 }
 input[type=range]:focus::-webkit-slider-runnable-track {
-  background: #367ebd;
+  background: #909090;
 }
 input[type=range]::-moz-range-track {
   width: 100%;
@@ -140,7 +184,7 @@ input[type=range]::-moz-range-track {
   cursor: pointer;
   animate: 0.2s;
   box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: #3071a9;
+  background: #909090;
   border-radius: 1.3px;
   border: 0.2px solid #010101;
 }
@@ -170,7 +214,7 @@ input[type=range]::-ms-fill-lower {
   box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
 }
 input[type=range]::-ms-fill-upper {
-  background: #3071a9;
+  background: #909090;
   border: 0.2px solid #010101;
   border-radius: 2.6px;
   box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
@@ -185,11 +229,12 @@ input[type=range]::-ms-thumb {
   cursor: pointer;
 }
 input[type=range]:focus::-ms-fill-lower {
-  background: #3071a9;
+  background: #909090;
 }
 input[type=range]:focus::-ms-fill-upper {
-  background: #367ebd;
+  background: #909090;
 }
+
 .content {
   position: absolute;
   top: 170px;
