@@ -3,8 +3,6 @@ var Map = require('./Map');
 var Chart = require('./Chart');
 
 
-
-
 // DUMMY DATA SET NOT BASED ON ANYTHING!!
 
 function rand(min, max, num) {
@@ -15,6 +13,7 @@ function rand(min, max, num) {
   return rtn;
 }
 
+// data needs to be in this format for chart.js
 var data = {
   labels: ["12am", "2am", "4am", "6am", "8am", "10am", "12pm", "2pm", "4pm", "6pm", "8pm", "10pm", "12am"],
   datasets: [
