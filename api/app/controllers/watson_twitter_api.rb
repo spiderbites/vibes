@@ -71,6 +71,7 @@ class WatsonTwitterApi
     # query = [@term, @time, @place].reduce {|a, e| a + ' ' + e }
     # @query = URI.encode(query)
     # @cities = cities
+    @ordered_by = parameters[:ordered_by]
     puts parameters
     puts changes
     @query = create_query(parameters, changes) + size_format(parameters[:by_chunks_of])
@@ -100,7 +101,7 @@ class WatsonTwitterApi
     [{
       place: (@place.split(':')[1] if @place),
       quantity: response['search']['results'],
-      data: scrape(response),
+      data: method(('order_by_' + @ordered_by.to_s).to_sym).call(scrape(response)),
     }, following_stats ]
   end
 
@@ -124,7 +125,7 @@ class WatsonTwitterApi
         place: @place.split(':')[1],
         result: e.split(':')[1],
         quantity: response1['search']['results'],
-        data: scrape(response2),
+        data: order_by_gender(scrape(response2)),
       }
     end, next_calls]
   end
@@ -160,13 +161,13 @@ class WatsonTwitterApi
 
   def tweet_scrape(e)
     {
-     time: (e['message']['postedTime'] rescue nil),
-     link: (e['message']['link'] rescue nil),
-     text: (e['message']['body'] rescue nil),
-     username: (e['message']['actor']['preferredUsername'] rescue nil),
-     retweets: (e['message']['retweetCount'] rescue nil),
-     favoritesCount: (e['message']['favoritesCount'] rescue nil),
-     hashTags: (e['message']['twitter_entities']['hastags'] rescue nil)
+      time: (e['message']['postedTime'] rescue nil),
+      link: (e['message']['link'] rescue nil),
+      text: (e['message']['body'] rescue nil),
+      username: (e['message']['actor']['preferredUsername'] rescue nil),
+      retweets: (e['message']['retweetCount'] rescue nil),
+      favoritesCount: (e['message']['favoritesCount'] rescue nil),
+      hashTags: (e['message']['twitter_entities']['hastags'] rescue nil)
     }
   end
 
@@ -192,7 +193,7 @@ class WatsonTwitterApi
         geo: (e['message']['gnip']['profileLocations'][0]['geo']['coordinates'] rescue nil),
         parentHood: (e['cde']['author']['isParent'] rescue nil),
         maritalStatus: (e['cde']['author']['isMarried'] rescue nil),
-        sentiment: (e['cde']['content']['sentiment']['polarity'] rescue nil),
+        sentiment: (e['cde']['content']['sentiment']['polarity'] rescue ""),
         time: (e['message']['postedTime'] rescue nil),
         link: (e['message']['link'] rescue nil),
         text: (e['message']['body'] rescue nil),
