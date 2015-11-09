@@ -186,7 +186,7 @@ class WatsonTwitterApi
   def scrape(response)
     r = response['tweets'].map do |e|
       {
-        gender: (e['cde']['author']['gender'] rescue nil),
+        gender: (e['cde']['author']['gender'] rescue ""),
         location1: (e['cde']['author']['location'] rescue nil),
         location2: (e['message']['actor']['location'] rescue nil),
         location3: (e['message']['object']['actor']['loaction'] rescue nil),

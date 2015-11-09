@@ -56,10 +56,11 @@ module WatsonTwitterApiHelper
     genders = {
       :male => [],
       :female => [],
-      :unknown => []
+      :unknown => [],
+      :"" => []
     }
     data.reduce(genders) do |a, e|
-      a[e[:gender].to_sym] << e
+      a[e[:gender].downcase.to_sym] << e
       a
     end
   end
@@ -76,5 +77,9 @@ module WatsonTwitterApiHelper
       a[e[:sentiment].downcase.to_sym] << e
       a
     end
+  end
+
+  def order_by_(data)
+    data
   end
 end
