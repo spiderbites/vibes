@@ -49,6 +49,6 @@ module WatsonTwitterApiHelper
 
   def size_format(size)
     size ||= 500
-    "&size:#{size}"
+    "&size=#{size}"
   end
 end

@@ -74,6 +74,7 @@ class WatsonTwitterApi
     puts parameters
     puts changes
     @query = create_query(parameters, changes) + size_format(parameters[:by_chunks_of])
+    puts @query
   end
 
   def test
