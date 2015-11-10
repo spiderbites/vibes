@@ -44,19 +44,8 @@ class WatsonTwitterApi
     :time_zone
   ]
   def create_query(parameters, changes)
-    has_changed = changes == {} || [:changed].reduce(true) {|a, e| (changes[e] && changes[e].length > 1) && a } ||
-    [:ommitted].reduce(true) {|a, e| (changes[e] && changes[e].length > 1) && a } ||
-    [:extra].reduce(true) {|a, e| (changes[e] && changes[e].length > 0) && a }
-
-    if has_changed
-      r = QUERRYING_PARAMS.reduce("") do |a,e|
-        if parameters[e]
-          a + ' ' + method(e).call(parameters[e])
-        else
-          a
-        end
-      end + ' ' + time_format(invoke(convert_time_to_method(parameters)))
-      URI.encode(r)
+    if has_query_changed?(changes)
+      reconstruct_query(parameters)
     else
       changes[:ommitted][:next_call]
     end
@@ -79,56 +68,18 @@ class WatsonTwitterApi
     }.merge(parser.meta_data), parser.meta_data[:next] ]
   end
 
-  def search
-    response = self.class.get("/messages/search?q=#{@query}", @@auth)
-    @@responses << response
-    process_response(response) ? @@responses : search
-  end
+  private
+    def has_query_changed?(changes)
+      changes == {} ||
+      (changes[:changed].length > 1) ||
+      (changes[:ommitted].length > 1) ||
+      (changes[:extra].length > 0)
+    end
 
-  def count
-    self.class.get("/messages/count?q=#{@query}", @@auth)
-  end
-
-  def process_response(response)
-    @following_stats = response['related']['next']['href'].split('?q=')[1]
-    total = response['search']['results'].to_i
-    from = response['related']['next']['href'].split('&').select {|e| e.include?('from=') }[0].split('=')[1].to_i
-    puts response
-    puts
-    puts total, from
-    @query = @following_stats
-    @@counter += 1
-
-    total == from
-  end
-
-  def search1(term)
-    query = URI.encode(term)
-    watsonApi = WatsonTwitterApi.new
-    response = watsonApi.count(query + '&size=500')
-  end
-
-  def tweet_scrape(e)
-    {
-      time: (e['message']['postedTime'] rescue nil),
-      link: (e['message']['link'] rescue nil),
-      text: (e['message']['body'] rescue nil),
-      username: (e['message']['actor']['preferredUsername'] rescue nil),
-      retweets: (e['message']['retweetCount'] rescue nil),
-      favoritesCount: (e['message']['favoritesCount'] rescue nil),
-      hashTags: (e['message']['twitter_entities']['hastags'] rescue nil)
-    }
-  end
-
-  def author_scrape(e)
-    {
-      gender: (e['cde']['author']['gender'] rescue nil),
-      location1: (e['cde']['author']['location'] rescue nil),
-      location2: (e['message']['actor']['location'] rescue nil),
-      location3: (e['message']['object']['actor']['loaction'] rescue nil),
-      geo: (e['message']['gnip']['profileLocations'][0]['geo']['coordinates'] rescue nil),
-      parentHood: (e['cde']['author']['isParent'] rescue nil),
-      maritalStatus: (e['cde']['author']['isMarried'] rescue nil),
-    }
-  end
+    def reconstruct_query(parameters)
+      r = QUERRYING_PARAMS.reduce("") do |a,e|
+        parameters[e] ? a + ' ' + method(e).call(parameters[e]) : a
+      end + ' ' + time_format(invoke(convert_time_to_method(parameters)))
+      URI.encode(r)
+    end
 end
