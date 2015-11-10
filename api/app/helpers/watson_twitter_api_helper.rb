@@ -52,34 +52,6 @@ module WatsonTwitterApiHelper
     "&size=#{size}"
   end
 
-  # def order_by_gender(data)
-  #   genders = {
-  #     :male => [],
-  #     :female => [],
-  #     :unknown => [],
-  #     :"" => []
-  #   }
-  #   r = data.reduce(genders) do |a, e|
-  #     a[e[:gender].downcase.to_sym] << e
-  #     a
-  #   end
-  #   r
-  # end
-
-  # def order_by_sentiment(data)
-  #   sentiments = {
-  #     :positive => [],
-  #     :negative => [],
-  #     :neutral => [],
-  #     :ambivalent => [],
-  #     :"" => []
-  #   }
-  #   data.reduce(sentiments) do |a, e|
-  #     a[e[:sentiment].downcase.to_sym] << e
-  #     a
-  #   end
-  # end
-
   def order_by_gender
     {
       :male => [],
