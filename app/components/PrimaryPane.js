@@ -10,12 +10,31 @@ var PrimaryPane = React.createClass({
     this.props.onUsernameSubmit(params);
   },
 
-  switchContent: function(content) {
-    this.setState({showContent: content});
+  switchContent: function(contentSelected) {
+    if (contentSelected === 'Chart') {
+      this.setState({
+        contentClasses: {
+          'Chart': '',
+          'Map': 'hidden'
+        }
+      });
+    } else if (contentSelected === 'Map') {
+      this.setState({
+        contentClasses: {
+          'Chart': 'hidden',
+          'Map': ''
+        }
+      });
+    }
   },
 
   getInitialState: function() {
-    return { showContent: 'Chart' };
+    return {
+      contentClasses: {
+        'Chart': '',
+        'Map': 'hidden'
+      }
+    };
   },
 
   render: function() {
@@ -24,7 +43,7 @@ var PrimaryPane = React.createClass({
         <div className="arbitrary">
           <Header onUsernameSubmit={this.handleUsernameSubmit}/>
           <Navbar selectContent={this.switchContent}/>
-          <Content showContent={this.state.showContent} data={this.props.data}/>
+          <Content contentClasses={this.state.contentClasses} data={this.props.data}/>
           <Slider/>
         </div>
       </div>

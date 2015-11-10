@@ -27,7 +27,7 @@ var Map = React.createClass({
 
   render: function(){
     return (
-      <div className={"map-holder"}>
+      <div className={"map-holder " + this.props.className}>
         <div id="map"></div>
       </div>
     );
