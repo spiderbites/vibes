@@ -52,10 +52,15 @@ var Content = React.createClass({
   },
 
   render: function() {
+    if (this.props.showContent === 'Chart') {
+      var content = <Chart className={this.state.chartClass} data={this.state.chartData} labels={this.state.chartLabels} width="600" height="250" options={this.props.chartOptions}/>
+    } else if (this.props.showContent === 'Map') {
+      var content = <Map className={this.state.mapClass} url="" pollInterval={2000} />
+    };
+
     return (
       <div className={"content"}>
-        <Chart className={this.state.chartClass} data={this.state.chartData} labels={this.state.chartLabels} width="600" height="250" options={this.props.chartOptions}/>
-        <Map className={this.state.mapClass} url="" pollInterval={2000} />
+        {content}
       </div>
     )
   }
