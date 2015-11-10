@@ -31,7 +31,9 @@ var Content = React.createClass({
       chartOptions: {
           multiTooltipTemplate: "<%= datasetLabel %> - <%= value %>",
           legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].fillColor%>\"><%if(datasets[i].label){%><%=datasets[i].label%><%}%></span></li><%}%></ul>",
-          animationSteps: 15
+          animationSteps: 15,
+          responsive: true,
+          maintainAspectRatio: false
         }
     };
   },
