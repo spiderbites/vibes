@@ -21,7 +21,7 @@ var Content = React.createClass({
   getInitialState: function() {
     return {
       chartData: [rand(250, 500, 12), rand(0, 150, 12), rand(0, 500, 12)],
-      chartLabels: ["12am", "2am", "4am", "6am", "8am", "10am", "12pm", "2pm", "4pm", "6pm", "8pm", "10pm"],
+      chartLabels: ["12am", "2am", "4am", "6am", "8am", "10am", "12pm", "2pm", "4pm", "6pm", "8pm", "10pm"]
     }
   },
 
@@ -31,7 +31,9 @@ var Content = React.createClass({
       chartOptions: {
           multiTooltipTemplate: "<%= datasetLabel %> - <%= value %>",
           legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].fillColor%>\"><%if(datasets[i].label){%><%=datasets[i].label%><%}%></span></li><%}%></ul>",
-          animationSteps: 15
+          animationSteps: 15,
+          responsive: true,
+          maintainAspectRatio: false
         }
     };
   },
@@ -52,15 +54,10 @@ var Content = React.createClass({
     // if (Object.keys(this.props.data).length !== 0)
     //   console.log("I'm the CONTENT and i got some data in my props. there's this many tweets about that " + this.props.data[2].quantity)
 
-    if (this.props.showContent === 'Chart') {
-      var content = <Chart data={this.state.chartData} labels={this.state.chartLabels} width="600" height="250" options={this.props.chartOptions}/>
-    } else if (this.props.showContent === 'Map') {
-      var content = <Map url="" pollInterval={5000000} />
-    };
-
     return (
       <div className={"content"}>
-        {content}
+        <Chart className={this.props.contentClasses['Chart']} data={this.state.chartData} labels={this.state.chartLabels} options={this.props.chartOptions}/>
+        <Map className={this.props.contentClasses['Map']} url="" pollInterval={5000000} />
       </div>
     )
   }
