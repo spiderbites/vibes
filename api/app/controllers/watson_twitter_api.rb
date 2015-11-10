@@ -13,13 +13,18 @@ class WatsonTwitterParser
   attr_accessor :meta_data
 
   def initialize(unrefined_data, order_by, slices)
-    @unrefined_data = unrefined_data
+    @unrefined_data = sort(unrefined_data)
     @order_by = order_by
     @data = method(('order_by_' + @order_by.to_s).to_sym).call()
     @slice_tracker = SliceTracker.new(slices, @data.keys)
 
     set_meta_data
     parse
+  end
+
+  def sort(data)
+    data['tweets'].sort! {|x,y| a = (x['message']['postedTime'] rescue '999999999999999999999999'); b = (y['message']['postedTime'] rescue '999999999999999999999999'); b <=> a}
+    data
   end
 
   def extract(unit)
