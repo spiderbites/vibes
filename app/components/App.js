@@ -40,7 +40,15 @@ var App = React.createClass({
   },
   
   handleSideshow: function() {
-    this.setState({sideshow: this.state.sideshow === '' ? 'sideshow' : ''});
+    this.setState({sideshow: this.state.sideshow === '' ? 'sideshow' : ''}, function() {
+      var count = 0;
+
+      var interval = setInterval(function() {
+        window.dispatchEvent(new Event('resize'));
+        count++;
+        if (count == 10) { clearInterval(interval); }
+      }, 100);
+    });
   }
 });
 
