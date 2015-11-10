@@ -18,7 +18,7 @@ class WatsonTwitterApi
     @order_by = parameters[:order_by].to_sym
     @slices = (parameters[:in_slices_of] || 48).to_i
     @from = "&from=#{parameters[:from]}"
-    @q = parameters[:q]
+
     @query = create_query(parameters, changes) +
              size_format(parameters[:by_chunks_of])
   end
@@ -36,9 +36,6 @@ class WatsonTwitterApi
     response = self.class.get(SEARCH + "#{query}", @@auth)
     parser = WatsonTwitterParser.new(response, @order_by, @slices)
     [{
-      total: {
-        sentiment: aggregate_by_sentiment
-      },
       data: parser.refined_data
     }.merge(parser.meta_data), parser.meta_data[:next] ]
   end

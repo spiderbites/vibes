@@ -37,9 +37,7 @@ module WatsonTwitterApiHelper
     {
       :positive => [],
       :negative => [],
-      :neutral => [],
-      :ambivalent => [],
-      :"non_existent_key_sentiment" => []
+      :neutral => []
     }
   end
 end

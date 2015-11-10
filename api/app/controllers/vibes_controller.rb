@@ -12,6 +12,7 @@ class VibesController < ApplicationController
   def search
     parameters = convert_string_hash_to_sym_hash(check_params)
     parameters[:epoch] = Time.now.to_i
+    parameters[:order_by] = 'sentiment'
     changes = determine_changes(get_prev_params, parameters)
 
     if sanity_check_passed?(parameters)
