@@ -6,7 +6,9 @@ var App = React.createClass({
   getInitialState: function() {
     return { sideshow: '' }
   },
+
   render: function() {
+    console.log('in app render');
     return (
       <div onClick={this.handleSideshow}>
         <PrimaryPane className={this.state.sideshow}/>
@@ -14,6 +16,7 @@ var App = React.createClass({
       </div>
     )
   },
+  
   handleSideshow: function() {
     this.setState({sideshow: this.state.sideshow === '' ? 'sideshow' : ''});
   }
