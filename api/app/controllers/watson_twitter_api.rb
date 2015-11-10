@@ -1,24 +1,10 @@
-module StatesCities
-  def states
-    JSON.parse(File.read('states.json'))
-  end
-
-  def cities
-    JSON.parse(File.read('cities.json'))
-  end
-end
-
 class WatsonTwitterApi
   include HTTParty
   include WatsonTwitterApiHelper
   include Timestamp
-  include StatesCities
   base_uri 'https://cdeservice.mybluemix.net/api/v1'
-  @@responses = []
-  @@counter = 0
   @@username = ENV['username2']
   @@password = ENV['password2']
-  @@sentiments = ['positive', 'negative', 'neutral', 'ambivalent'].map {|e| "sentiment:" + e }
   @@auth = {
     basic_auth: {
       username: @@username,
