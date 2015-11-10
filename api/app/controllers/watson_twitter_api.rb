@@ -8,6 +8,67 @@ module StatesCities
   end
 end
 
+class WatsonTwitterParser
+  include WatsonTwitterApiHelper
+  attr_accessor :meta_data
+
+  def initialize(unrefined_data, order_by, slices)
+    @unrefined_data = unrefined_data
+    @order_by = order_by
+    @data = method(('order_by_' + @order_by.to_s).to_sym).call()
+    @slices = slices
+    set_meta_data
+    parse
+  end
+
+  def extract(unit)
+    e = unit
+    {
+      gender: (e['cde']['author']['gender'] rescue "").to_s,
+      location1: (e['cde']['author']['location'] rescue nil),
+      location2: (e['message']['actor']['location'] rescue nil),
+      location3: (e['message']['object']['actor']['loaction'] rescue nil),
+      geo: (e['message']['gnip']['profileLocations'][0]['geo']['coordinates'] rescue nil),
+      parentHood: (e['cde']['author']['isParent'] rescue nil),
+      maritalStatus: (e['cde']['author']['isMarried'] rescue nil),
+      sentiment: (e['cde']['content']['sentiment']['polarity'] rescue "").to_s,
+      time: (e['message']['postedTime'] rescue nil),
+      link: (e['message']['link'] rescue nil),
+      text: (e['message']['body'] rescue nil),
+      username: (e['message']['actor']['preferredUsername'] rescue nil),
+      retweets: (e['message']['retweetCount'] rescue nil),
+      favoritesCount: (e['message']['favoritesCount'] rescue nil),
+      hashTags: (e['message']['twitter_entities']['hastags'] rescue nil),
+      userMentions: (e['message']['twitter_entities']['userMentions'] rescue nil),
+      symbols: (e['message']['twitter_entities']['symbols'] rescue nil),
+      twitterLanguage: (e['message']['twitter_entities']['twitter_lang'] rescue nil)
+    }
+  end
+
+  def set_meta_data
+    @meta_data = {
+      next: @unrefined_data['related']['next']['href'].split('?q=')[1],
+      quantity: @unrefined_data['search']['results'].to_i,
+      from: @unrefined_data['related']['next']['href'].split('&')
+              .select { |href_portion| href_portion.include?('from=') }[0]
+              .split('=')[1]
+              .to_i
+    }
+  end
+
+  def parse
+    @unrefined_data['tweets'].map do |e|
+      data = extract(e)
+      key = data[@order_by].to_sym
+      @data[key] << data
+    end
+  end
+
+  def refined_data
+    @data
+  end
+end
+
 class WatsonTwitterApi
   include HTTParty
   include WatsonTwitterApiHelper
@@ -64,9 +125,8 @@ class WatsonTwitterApi
 
   def initialize(parameters, changes)
     @order_by = parameters[:order_by].to_sym
-
-    @data = method(('order_by_' + @order_by.to_s).to_sym).call()
     @slices = (parameters[:in_slices_of] || 48).to_i
+
     puts parameters
     puts changes
     @query = create_query(parameters, changes) + size_format(parameters[:by_chunks_of])
@@ -76,15 +136,11 @@ class WatsonTwitterApi
   def get
     query = @query
     response = self.class.get("/messages/search?q=#{query}", @@auth)
-    following_stats = response['related']['next']['href'].split('?q=')[1]
-    total = response['search']['results'].to_i
-    from = response['related']['next']['href'].split('&').select {|e| e.include?('from=') }[0].split('=')[1].to_i
-    data = scrape(response)
+    parser = WatsonTwitterParser.new(response, @order_by, @slices)
+    puts parser.meta_data[:next]
     [{
-      place: (@place.split(':')[1] if @place),
-      quantity: response['search']['results'],
-      data: data
-    }, following_stats ]
+      data: parser.refined_data
+    }.merge(parser.meta_data), parser.meta_data[:next] ]
   end
 
   def search
@@ -138,38 +194,6 @@ class WatsonTwitterApi
       parentHood: (e['cde']['author']['isParent'] rescue nil),
       maritalStatus: (e['cde']['author']['isMarried'] rescue nil),
     }
-  end
-
-  def extract(e)
-    {
-      gender: (e['cde']['author']['gender'] rescue "").to_s,
-      location1: (e['cde']['author']['location'] rescue nil),
-      location2: (e['message']['actor']['location'] rescue nil),
-      location3: (e['message']['object']['actor']['loaction'] rescue nil),
-      geo: (e['message']['gnip']['profileLocations'][0]['geo']['coordinates'] rescue nil),
-      parentHood: (e['cde']['author']['isParent'] rescue nil),
-      maritalStatus: (e['cde']['author']['isMarried'] rescue nil),
-      sentiment: (e['cde']['content']['sentiment']['polarity'] rescue "").to_s,
-      time: (e['message']['postedTime'] rescue nil),
-      link: (e['message']['link'] rescue nil),
-      text: (e['message']['body'] rescue nil),
-      username: (e['message']['actor']['preferredUsername'] rescue nil),
-      retweets: (e['message']['retweetCount'] rescue nil),
-      favoritesCount: (e['message']['favoritesCount'] rescue nil),
-      hashTags: (e['message']['twitter_entities']['hastags'] rescue nil),
-      userMentions: (e['message']['twitter_entities']['userMentions'] rescue nil),
-      symbols: (e['message']['twitter_entities']['symbols'] rescue nil),
-      twitterLanguage: (e['message']['twitter_entities']['twitter_lang'] rescue nil)
-    }
-  end
-
-  def scrape(response)
-    response['tweets'].map do |e|
-      data = extract(e)
-      key = data[@order_by].to_sym
-      @data[key] << data
-    end
-    @data
   end
 end
   # def get_sentiments
