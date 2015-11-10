@@ -10,9 +10,9 @@ var App = React.createClass({
   render: function() {
     console.log('in app render');
     return (
-      <div onClick={this.handleSideshow}>
-        <PrimaryPane className={this.state.sideshow}/>
-        <SidePane className={this.state.sideshow}/>
+      <div>
+        <PrimaryPane className={this.state.sideshow} />
+        <SidePane className={this.state.sideshow} clicktabClick={this.handleSideshow}/>
       </div>
     )
   },

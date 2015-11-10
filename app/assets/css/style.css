@@ -34,11 +34,11 @@ body {
   height: 100%;
   width: 100%;
   display: inline-block;
+  transform: translateX(-20px);
   transition: all 1s ease;
 }
 
 .side-pane {
-  overflow: scroll;
   position: absolute;
   right: -25%;
   height: 100%;
@@ -49,6 +49,22 @@ body {
   border-radius: 4px 0 0 4px;
   text-shadow: 1px 1px 1px rgba(0,0,0,0.3);*/
   transition: all 1s ease;
+}
+
+.tweets {
+  overflow: scroll;
+  height: 100%;
+}
+
+.side-pane .clicktab {
+  position: absolute;
+  left: -21px;
+  height: 60px;
+  width: 20px;
+  background: linear-gradient(#484e55, #3a3f44 60%, #313539);
+  border-left: 1px solid rgba(0,0,0,0.6);
+  border-bottom: 1px solid rgba(0,0,0,0.6);
+  border-radius: 0 0 0 4px;
 }
 
 .arbitrary {
