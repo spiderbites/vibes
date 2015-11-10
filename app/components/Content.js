@@ -54,7 +54,7 @@ var Content = React.createClass({
 
     return (
       <div className={"content"}>
-        <Chart className={this.props.contentClasses['Chart']} data={this.state.chartData} labels={this.state.chartLabels} width="600" height="250" options={this.props.chartOptions}/>
+        <Chart className={this.props.contentClasses['Chart']} data={this.state.chartData} labels={this.state.chartLabels} options={this.props.chartOptions}/>
         <Map className={this.props.contentClasses['Map']} url="" pollInterval={5000000} />
       </div>
     )

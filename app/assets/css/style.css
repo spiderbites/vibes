@@ -398,7 +398,22 @@ input[type=range]:focus::-ms-fill-upper {
   }
 }
 
+.chart > div {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+}
+
+.canvas-holder {
+  top: 20px;
+  bottom: 100px;
+}
+
+.chart-legend {
+  bottom: 20px;
+}
+
 canvas {
-  width: 75%;
-  height:auto;
+  height: 100%;
+  width: 100%;
 }

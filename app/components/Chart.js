@@ -1,6 +1,7 @@
 // var LineChart = require("react-chartjs").Line;
 var React = require('react');
 var RChartJS = require("react-chartjs");
+var $ = require("jquery");
 
 var Chart = React.createClass({
 
@@ -61,9 +62,11 @@ var Chart = React.createClass({
     var legend = this.state && this.state.legend || '';
 
     return (
-      <div className={this.props.className}>
-        <RChartJS.Line data={this.state.data} options={this.props.options} ref="lineChart" />
-        <div dangerouslySetInnerHTML={{ __html: legend }} />
+      <div className={"chart " + this.props.className}>
+        <div className="canvas-holder">
+          <RChartJS.Line data={this.state.data} options={this.props.options} ref="lineChart" />
+        </div>
+        <div className="chart-legend" dangerouslySetInnerHTML={{ __html: legend }} />
       </div>
     );
   },
