@@ -102,6 +102,10 @@ ul.line-legend {
   transform: translateY(-50%);
 }
 
+form {
+  height: inherit;
+}
+
 input {
   outline: none;
 }
@@ -353,4 +357,9 @@ input[type=range]:focus::-ms-fill-upper {
   .side-pane.sideshow {
     right: 0;
   }
+}
+
+canvas {
+  width: 75%;
+  height:auto;
 }
