@@ -22,8 +22,6 @@ var Content = React.createClass({
     return {
       chartData: [rand(250, 500, 12), rand(0, 150, 12), rand(0, 500, 12)],
       chartLabels: ["12am", "2am", "4am", "6am", "8am", "10am", "12pm", "2pm", "4pm", "6pm", "8pm", "10pm"],
-      chartClass: '',
-      mapClass: 'hidden'
     }
   },
 
@@ -51,10 +49,18 @@ var Content = React.createClass({
   },
 
   render: function() {
+    if (Object.keys(this.props.data).length !== 0)
+      console.log("I'm the CONTENT and i got some data in my props. there's this many tweets about that " + this.props.data[2].quantity)
+
+    if (this.props.showContent === 'Chart') {
+      var content = <Chart data={this.state.chartData} labels={this.state.chartLabels} width="600" height="250" options={this.props.chartOptions}/>
+    } else if (this.props.showContent === 'Map') {
+      var content = <Map url="" pollInterval={5000000} />
+    };
+
     return (
       <div className={"content"}>
-        <Chart className={this.state.chartClass} data={this.state.chartData} labels={this.state.chartLabels} width="600" height="250" options={this.props.chartOptions}/>
-        <Map className={this.state.mapClass} url="" pollInterval={5000000} />
+        {content}
       </div>
     )
   }

@@ -10,13 +10,21 @@ var PrimaryPane = React.createClass({
     this.props.onUsernameSubmit(params);
   },
 
+  switchContent: function(content) {
+    this.setState({showContent: content});
+  },
+
+  getInitialState: function() {
+    return { showContent: 'Chart' };
+  },
+
   render: function() {
     return (
       <div className={"primary-pane " + this.props.className}>
         <div className="arbitrary">
           <Header onUsernameSubmit={this.handleUsernameSubmit}/>
-          <Navbar/>
-          <Content data={this.props.data}/>
+          <Navbar selectContent={this.switchContent}/>
+          <Content showContent={this.state.showContent} data={this.props.data}/>
           <Slider/>
         </div>
       </div>
