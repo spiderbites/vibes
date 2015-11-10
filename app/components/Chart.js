@@ -61,7 +61,7 @@ var Chart = React.createClass({
     var legend = this.state && this.state.legend || '';
 
     return (
-      <div>
+      <div className={this.props.className}>
         <RChartJS.Line data={this.state.data} options={this.props.options} ref="lineChart" />
         <div dangerouslySetInnerHTML={{ __html: legend }} />
       </div>

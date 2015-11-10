@@ -1,7 +1,7 @@
 var React = require('react');
 
 var Navbar = React.createClass({
-  selectContent: function (event) {
+  selectContent: function(event) {
     this.props.selectContent(event.target.textContent);
   },
 
