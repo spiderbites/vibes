@@ -299,6 +299,38 @@ input[type=range]:focus::-ms-fill-upper {
   border-radius: 4px 0 0 4px;
   text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
   height: 10%;
+  padding: 6%;
+}
+
+.tweet.sentiment-NEGATIVE {
+  background: #9C2E2E;
+}
+
+.tweet.sentiment-POSITIVE {
+  background: #446744;
+}
+
+p.tweet-user {
+  float:left;
+  font-weight:500;
+  color:white;
+  margin-bottom: 5px;
+}
+
+p.tweet-text {
+  clear:both;
+  font-size:small;
+  font-weight:100;
+}
+
+p.tweet-time {
+  font-size:smaller;
+  float: right;
+}
+
+p.tweet-time a {
+  color:white;
+  text-decoration: none;
 }
 
 @media (max-width: 480px) {

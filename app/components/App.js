@@ -5,7 +5,8 @@ var $ = require('jquery');
 
 var App = React.createClass({
 
-  API_URL: "http://localhost:3000/search",
+  // API_URL: "http://localhost:3000/search",
+  API_URL: "http://localhost:3030/api/tweets",
 
   getInitialState: function() {
     return { sideshow: '', data: {} }
@@ -19,7 +20,7 @@ var App = React.createClass({
   loadDataFromServer: function(params) {
     $.ajax({ 
       url: this.API_URL,
-      data: params,
+      // data: params,
       dataType: 'json',
       success: function(data) {
         this.setState({data: data});
@@ -34,7 +35,7 @@ var App = React.createClass({
     return (
       <div>
         <PrimaryPane data={this.state.data} onUsernameSubmit={this.handleUsernameSubmit} className={this.state.sideshow} />
-        <SidePane className={this.state.sideshow} clicktabClick={this.handleSideshow}/>
+        <SidePane className={this.state.sideshow} clicktabClick={this.handleSideshow} tweetData={this.state.data}/>
       </div>
     )
   },

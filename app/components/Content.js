@@ -49,8 +49,8 @@ var Content = React.createClass({
   },
 
   render: function() {
-    if (Object.keys(this.props.data).length !== 0)
-      console.log("I'm the CONTENT and i got some data in my props. there's this many tweets about that " + this.props.data[2].quantity)
+    // if (Object.keys(this.props.data).length !== 0)
+    //   console.log("I'm the CONTENT and i got some data in my props. there's this many tweets about that " + this.props.data[2].quantity)
 
     if (this.props.showContent === 'Chart') {
       var content = <Chart data={this.state.chartData} labels={this.state.chartLabels} width="600" height="250" options={this.props.chartOptions}/>

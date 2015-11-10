@@ -260,6 +260,29 @@ input[type=range]:focus::-ms-fill-upper {
   border-radius: 4px 0 0 4px;
   text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
   height: 10%;
+  padding: 6%;
+}
+
+
+p.tweet-user {
+  font-weight:500;
+  color:white;
+  text-align: right; 
+}
+
+p.tweet-text {
+  font-size:small;
+  font-weight:100;
+}
+
+p.tweet-time {
+  font-size:smaller;
+  text-align: right;
+}
+
+p.tweet-time a {
+  color:white;
+  text-decoration: none;
 }
 
 @media (max-width: 480px) {

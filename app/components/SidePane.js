@@ -6,26 +6,27 @@ var SidePane = React.createClass({
     return (
       <div className={"side-pane " + this.props.className}>
         <div className="clicktab" onClick={this.props.clicktabClick}></div>
-        <div className="tweets">
-          <Tweet/>
-          <Tweet/>
-          <Tweet/>
-          <Tweet/>
-          <Tweet/>
-          <Tweet/>
-          <Tweet/>
-          <Tweet/>
-          <Tweet/>
-          <Tweet/>
-          <Tweet/>
-          <Tweet/>
-          <Tweet/>
-          <Tweet/>
-          <Tweet/>
-          <Tweet/>
-        </div>
+        <TweetList tweetData={this.props.tweetData} />
       </div>
     )
+  }
+});
+
+var TweetList = React.createClass({
+  render: function() {
+    if (Object.keys(this.props.tweetData).length !== 0) {
+      var tweetNodes = this.props.tweetData.map(function (tweet) {
+        return (
+          <Tweet tweet={tweet} />
+          );
+      });
+    }
+
+    return (
+      <div className="tweets">
+        {tweetNodes}
+      </div>
+    );
   }
 });
 
