@@ -8,3 +8,4 @@ api/log/*
 !api/log/.keep
 api/tmp
 api/.env
+api/old

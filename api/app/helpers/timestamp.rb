@@ -1,4 +1,6 @@
 module Timestamp
+  TIMES = [:seconds, :minutes, :hours, :days, :weeks, :months, :years, :range]
+
   METHODS = [
     {
       method: :utc,
@@ -91,5 +93,17 @@ module Timestamp
 
   def invoke(time_method)
     method(time_method[:method]).call(time_method[:arg])
+  end
+
+  def time_restriction?(parameters)
+    (parameters.keys & TIMES).length > 0
+  end
+
+  def convert_time_to_method(parameters)
+    time = (parameters.keys & TIMES)[0]
+    {
+      method: ('past_' + time.to_s).to_sym,
+      arg: parameters[time].to_i
+    }
   end
 end

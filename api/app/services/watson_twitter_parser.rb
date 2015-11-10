@@ -24,23 +24,12 @@ class WatsonTwitterParser
 
     {
       gender: (gender == "" ? "non_existent_key_gender" : gender),
-      location1: (e['cde']['author']['location'] rescue nil),
-      location2: (e['message']['actor']['location'] rescue nil),
-      location3: (e['message']['object']['actor']['loaction'] rescue nil),
       geo: (e['message']['gnip']['profileLocations'][0]['geo']['coordinates'] rescue nil),
-      parentHood: (e['cde']['author']['isParent'] rescue nil),
-      maritalStatus: (e['cde']['author']['isMarried'] rescue nil),
       sentiment: (sentiment == "" ? "non_existent_key_sentiment" : sentiment),
       time: (e['message']['postedTime'] rescue nil),
       link: (e['message']['link'] rescue nil),
       text: (e['message']['body'] rescue nil),
       username: (e['message']['actor']['preferredUsername'] rescue nil),
-      retweets: (e['message']['retweetCount'] rescue nil),
-      favoritesCount: (e['message']['favoritesCount'] rescue nil),
-      hashTags: (e['message']['twitter_entities']['hastags'] rescue nil),
-      userMentions: (e['message']['twitter_entities']['userMentions'] rescue nil),
-      symbols: (e['message']['twitter_entities']['symbols'] rescue nil),
-      twitterLanguage: (e['message']['twitter_entities']['twitter_lang'] rescue nil)
     }
   end
 
