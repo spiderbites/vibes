@@ -85,7 +85,7 @@ module WatsonTwitterApiHelper
       :male => [],
       :female => [],
       :unknown => [],
-      :"" => []
+      :"non_existent_key_gender" => []
     }
   end
 
@@ -95,7 +95,7 @@ module WatsonTwitterApiHelper
       :negative => [],
       :neutral => [],
       :ambivalent => [],
-      :"" => []
+      :"non_existent_key_sentiment" => []
     }
   end
 
