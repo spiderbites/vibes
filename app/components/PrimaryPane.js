@@ -5,13 +5,18 @@ var Content = require('./Content');
 var Slider = require('./Slider');
 
 var PrimaryPane = React.createClass({
+
+  handleUsernameSubmit: function(params) {
+    this.props.onUsernameSubmit(params);
+  },
+
   render: function() {
     return (
       <div className={"primary-pane " + this.props.className}>
         <div className="arbitrary">
-          <Header/>
+          <Header onUsernameSubmit={this.handleUsernameSubmit}/>
           <Navbar/>
-          <Content/>
+          <Content data={this.props.data}/>
           <Slider/>
         </div>
       </div>

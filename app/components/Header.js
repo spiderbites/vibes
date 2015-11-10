@@ -3,11 +3,12 @@ var React = require('react');
 var Header = React.createClass({
 
   handleSubmit: function(e) {
+    console.log("handlesubmit in header");
     e.preventDefault();
     var username = this.refs.username.value.trim();
     if (!username)
       return;
-    //this.props.onUsernameSubmit({username: username});
+    this.props.onUsernameSubmit({q: username});
     this.refs.username.value = '';
   },
 

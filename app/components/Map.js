@@ -17,7 +17,6 @@ var Map = React.createClass({
   },
 
   componentDidUpdate: function(){
-    console.log("componentDidUpdate");
   },
 
   getInitialState: function() {
@@ -119,8 +118,6 @@ var Map = React.createClass({
   addMarker: function(lat, lng, sentimentValue) {
     // add to the markers array
     this.markers.push({lat: lat, lng: lng});
-
-    console.log(lat, lng);
 
     // actually add the marker to the map
     var marker = new google.maps.Marker({

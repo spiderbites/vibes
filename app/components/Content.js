@@ -15,7 +15,7 @@ function rand(min, max, num) {
 var Content = React.createClass({
   componentDidMount: function() {
     // change data to test redrawing
-    setInterval(this.newData, 2500);
+    setInterval(this.newData, 1000000);
   },
 
   getInitialState: function() {
@@ -39,7 +39,6 @@ var Content = React.createClass({
   },
 
   newData: function() {
-    console.log('newdata');
     var labels = this.state.chartLabels;
     labels.push(labels.shift());
     this.setState({
@@ -55,7 +54,7 @@ var Content = React.createClass({
     return (
       <div className={"content"}>
         <Chart className={this.state.chartClass} data={this.state.chartData} labels={this.state.chartLabels} width="600" height="250" options={this.props.chartOptions}/>
-        <Map className={this.state.mapClass} url="" pollInterval={2000} />
+        <Map className={this.state.mapClass} url="" pollInterval={5000000} />
       </div>
     )
   }
