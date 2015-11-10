@@ -8,3 +8,5 @@ api/log/*
 !api/log/.keep
 api/tmp
 api/.env
+
+app/assets/testing-data
