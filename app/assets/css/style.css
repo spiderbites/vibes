@@ -103,6 +103,10 @@ ul.line-legend {
   font-size: 36px;
 }
 
+.navbar ul li span {
+  cursor: pointer;
+}
+
 .slider {
   position: absolute;
   bottom: 60px;
@@ -260,10 +264,6 @@ input[type=range]:focus::-ms-fill-upper {
   right: 0;
   height: auto;
   min-height: 400px;
-}
-
-.content > div.hidden {
-  display: none;
 }
 
 .map-holder {
