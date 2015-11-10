@@ -74,13 +74,4 @@ module WatsonTwitterApiHelper
   def order_by_(data)
     data
   end
-
-  def slice_up(data, slices)
-    if data.length == 0
-      data.keys.map {|e| e.each_slice(slices).to_a }
-    else
-      puts data
-      data.each_slice(slices).to_a
-    end
-  end
 end
