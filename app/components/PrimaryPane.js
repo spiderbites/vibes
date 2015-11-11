@@ -6,8 +6,8 @@ var Slider = require('./Slider');
 
 var PrimaryPane = React.createClass({
 
-  handleUsernameSubmit: function(params) {
-    this.props.onUsernameSubmit(params);
+  handleQuerySubmit: function(params) {
+    this.props.onQuerySubmit(params);
   },
 
   switchContent: function(contentSelected) {
@@ -41,7 +41,7 @@ var PrimaryPane = React.createClass({
     return (
       <div className={"primary-pane " + this.props.className}>
         <div className="arbitrary">
-          <Header onUsernameSubmit={this.handleUsernameSubmit}/>
+          <Header onQuerySubmit={this.handleQuerySubmit}/>
           <Navbar selectContent={this.switchContent}/>
           <Content contentClasses={this.state.contentClasses} mapData={this.props.mapData} data={this.props.data}/>
           <Slider/>

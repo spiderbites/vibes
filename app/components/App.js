@@ -9,13 +9,14 @@ var App = React.createClass({
   // API_URL: "http://localhost:3030/api/tweets",
 
   getInitialState: function() {
-    return { sideshow: '', data: {time_labels: [], stats: {}, tweets: []} }
+    return { sideshow: '', mapData: [], tweetData: [], q: ""};
   },
 
-  handleUsernameSubmit: function(params) {
-    if (!("hours" in params))
+  handleQuerySubmit: function(params) {
+    if (!("hours" in params) || params["hours"] === "")
       params["hours"] = "1";
-    this.loadDataFromServer(params)
+    debugger;
+    this.loadDataFromServer(params);
   },
 
   loadDataFromServer: function(params) {
@@ -24,7 +25,16 @@ var App = React.createClass({
       data: params,
       dataType: 'json',
       success: function(data) {
-        this.setState({data: data[2].data});
+        debugger;
+        // update data with received
+        this.updateData(data[2].data, params.q);
+
+        // Watson restricts us to 500 results at a time
+        // check if there is more and run again until we've got it all for the time period requested
+        if (data[2].quantity !== data[2].from) {
+          params.from = data[2].from;
+          this.loadDataFromServer(params);
+        }
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(params, status, err.toString());
@@ -32,11 +42,30 @@ var App = React.createClass({
     });
   },
 
+  updateData: function(data, q) {
+    // repeat query
+    if (this.state.q === q) {
+      this.setState({
+        mapData: (this.state.mapData).concat(data.map),
+        tweetData: (this.state.tweetData).concat(data.tweets)
+      // chartData?
+      });
+    }
+    else {
+      this.setState({
+        mapData: data.map,
+        tweetData: data.tweets,
+        // chartData?
+        q: q
+      });
+    }
+  },
+
   render: function() {
     return (
       <div>
-        <PrimaryPane mapData={this.state.data.map} data={this.state.data} onUsernameSubmit={this.handleUsernameSubmit} className={this.state.sideshow} />
-        <SidePane className={this.state.sideshow} clicktabClick={this.handleSideshow} tweetData={this.state.data.tweets}/>
+        <PrimaryPane mapData={this.state.mapData} data={this.state.data} onQuerySubmit={this.handleQuerySubmit} className={this.state.sideshow} />
+        <SidePane className={this.state.sideshow} clicktabClick={this.handleSideshow} tweetData={this.state.tweetData}/>
       </div>
     )
   },
