@@ -45,8 +45,8 @@ class VibesController < ApplicationController
     def process_search(parameters, changes)
       watsonApi = WatsonTwitterApi.new(parameters, changes)
 
-      results, parameters[:next_call] = watsonApi.get
-      cookies[:vibes] = {value: parameters.to_json}
+      results = watsonApi.get
+      # cookies[:vibes] = {value: parameters.to_json}
 
       handle_jsonp([parameters[:next_call], changes, results])
     end

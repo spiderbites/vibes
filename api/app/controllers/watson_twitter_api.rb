@@ -15,31 +15,24 @@ class WatsonTwitterApi
   }
 
   def initialize(parameters, changes)
-    @order_by = parameters[:order_by].to_sym
-    @slices = (parameters[:in_slices_of] || 48).to_i
     @from = "&from=#{parameters[:from]}"
     time_param = obtain_time_param(parameters)
-    @time = [time_param, parameters[time_param]]
-    @query = create_query(parameters, changes) +
-             size_format(parameters[:by_chunks_of])
+    @query = create_query(parameters)
+    @config = {
+      time: [time_param, parameters[time_param]],
+      slices: (parameters[:in_slices_of] || 48).to_i
+    }
   end
 
-  def create_query(parameters, changes)
-    reconstruct_query(parameters)
-    # if has_query_changed?(changes)
-    # else
-    #   changes[:ommitted][:next_call]
-    # end
+  def create_query(parameters)
+    reconstruct_query(parameters) + size_format(parameters[:by_chunks_of])
   end
 
   def get
     query = @query + @from
-    puts "HELLO:#{query}"
     response = self.class.get(SEARCH + "#{query}", @@auth)
-    parser = WatsonTwitterParser.new(response, @order_by, @slices, @time)
-    [{
-      data: parser.refined_data
-    }.merge(parser.meta_data), parser.meta_data[:next] ]
+    parser = WatsonTwitterParser.new(response, @config)
+    {data: parser.data}
   end
 
   private
