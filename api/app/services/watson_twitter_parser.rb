@@ -3,11 +3,13 @@ class WatsonTwitterParser
 
   attr_accessor :meta_data
 
-  def initialize(unrefined_data, order_by, slices)
-    @unrefined_data = sort(unrefined_data)
+  def initialize(unrefined_data, order_by, slices, time)
+    @unrefined_data = unrefined_data
     @order_by = order_by
     @data = method(('order_by_' + @order_by.to_s).to_sym).call()
     @slice_tracker = SliceTracker.new(slices, @data.keys)
+    @slices = slices.to_i
+    @time = time
     @tweets = []
     set_meta_data
     parse
@@ -21,11 +23,11 @@ class WatsonTwitterParser
 
   def extract(unit)
     e = unit
-    gender = (e['cde']['author']['gender'] rescue "non_existent_key_gender").to_s
+    gender = (e['cde']['author']['gender'] rescue "unknown").to_s
     sentiment = (e['cde']['content']['sentiment']['polarity'] rescue "").to_s
 
     {
-      gender: (gender == "" ? "non_existent_key_gender" : gender),
+      gender: gender.downcase,
       geo: (e['message']['gnip']['profileLocations'][0]['geo']['coordinates'] rescue nil),
       sentiment: classify_sentiment(sentiment.downcase),
       time: (e['message']['postedTime'] rescue nil),
@@ -68,9 +70,15 @@ class WatsonTwitterParser
   end
 
   def refine
-    intervals = create_hourly_time_slices(1, 10)
+    intervals = if @time[0] == :hours
+                  labels = lambda { intervals.map { |e| e[0].split('T')[1] } }
+                  create_hourly_time_slices(@time[1], @slices)
+                else
+                  labels = lambda { intervals.map { |e| e[0].split('T')[0] } }
+                  create_daily_time_slices(@time[1], @slices)
+                end
     @data.keys.each do |k|
-      data = (0..9).map { |_| 0 }
+      data = (0..@slices).map { |_| 0 }
       @data[k].each do |e|
         i = intervals.find_index { |ar| ar[0] <= e[:time] && e[:time] < ar[1] }
         i = i.nil? ? 0 : i
@@ -79,7 +87,7 @@ class WatsonTwitterParser
       @data[k] = data
     end
     @refined = {
-      time_labels: intervals.map { |e| e[0].split('T')[1] },
+      time_labels: labels.call(),
       stats: @data,
       tweets: @tweets,
       map: @tweets.reduce([]) do |a, e|
@@ -100,8 +108,15 @@ class WatsonTwitterParser
   private
     def create_hourly_time_slices(hours, slices)
       time = Time.now
-      slices_per_hour = 60 / (slices / hours)
+      slices_per_hour = 60 / (slices.to_i / hours.to_i)
       timings = (0..slices).map { |e| time.since(-60 * (slices_per_hour * e)).utc.iso8601 }.reverse
+      intervals = timings.zip timings[1..-1]
+      intervals.pop
+      intervals
+    end
+
+    def create_daily_time_slices(days, slices)
+      timings = (0..days.to_i).reduce([Time.now]) { |a, e| a << a.last.yesterday }.reverse.map {|e| e.utc.iso8601 }
       intervals = timings.zip timings[1..-1]
       intervals.pop
       intervals

@@ -18,7 +18,8 @@ class WatsonTwitterApi
     @order_by = parameters[:order_by].to_sym
     @slices = (parameters[:in_slices_of] || 48).to_i
     @from = "&from=#{parameters[:from]}"
-
+    time_param = obtain_time_param(parameters)
+    @time = [time_param, parameters[time_param]]
     @query = create_query(parameters, changes) +
              size_format(parameters[:by_chunks_of])
   end
@@ -33,8 +34,9 @@ class WatsonTwitterApi
 
   def get
     query = @query + @from
+    puts "HELLO:#{query}"
     response = self.class.get(SEARCH + "#{query}", @@auth)
-    parser = WatsonTwitterParser.new(response, @order_by, @slices)
+    parser = WatsonTwitterParser.new(response, @order_by, @slices, @time)
     [{
       data: parser.refined_data
     }.merge(parser.meta_data), parser.meta_data[:next] ]

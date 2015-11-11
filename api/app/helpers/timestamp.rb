@@ -95,8 +95,8 @@ module Timestamp
     method(time_method[:method]).call(time_method[:arg])
   end
 
-  def time_restriction?(parameters)
-    (parameters.keys & TIMES).length > 0
+  def obtain_time_param(parameters)
+    (parameters.keys & TIMES)[0]
   end
 
   def convert_time_to_method(parameters)
