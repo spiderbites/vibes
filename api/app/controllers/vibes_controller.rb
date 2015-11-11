@@ -43,19 +43,27 @@ class VibesController < ApplicationController
     end
 
     def process_search(parameters, changes)
-      acc = []
+      batches = []
       meta = nil
       next_url = ''
       while (!meta || (meta[:from] < meta[:quantity])) do
         watsonApi = WatsonTwitterApi.new(parameters, next_url)
 
         results = watsonApi.get
-        acc << results
+        batches << results
         meta = results[:meta_data]
         next_url = meta[:next]
         puts meta
       end
-      handle_jsonp(acc)
+      save_to_db(batches)
+      handle_jsonp(batches)
+    end
+
+    def save_to_db(batches)
+      batches.each do |batch|
+        url = URI.decode(batch[:meta_data][:current_url].split('&from=')[0])
+        batch[:data].each { |e| Tweet.create e.merge({url: url} ) }
+      end
     end
 
     def cors_set_access_control_headers
@@ -65,6 +73,4 @@ class VibesController < ApplicationController
       headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
       headers['Access-Control-Allow-Credentials'] = 'true'
     end
-
-
 end

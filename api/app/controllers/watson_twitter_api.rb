@@ -33,7 +33,7 @@ class WatsonTwitterApi
     response = self.class.get(SEARCH + "#{query}", @@auth)
     parser = WatsonTwitterParser.new(response, @config)
     {
-      meta_data: parser.meta_data,
+      meta_data: parser.meta_data.merge({current_url: @query + @from}),
       data: parser.data
     }
   end
