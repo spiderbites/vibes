@@ -5,22 +5,24 @@ var $ = require('jquery');
 
 var App = React.createClass({
 
-  // API_URL: "http://localhost:3000/search",
-  API_URL: "http://localhost:3030/api/tweets",
+  API_URL: "http://localhost:3000/search",
+  // API_URL: "http://localhost:3030/api/tweets",
 
   getInitialState: function() {
     return { sideshow: '', data: {} }
   },
 
   handleUsernameSubmit: function(params) {
-    //console.log("onUsernameSubmit in App.js: " + params.q);
+    if (!("hours" in params))
+      params["hours"] = 1;
+    debugger;
     this.loadDataFromServer(params)
   },
 
   loadDataFromServer: function(params) {
     $.ajax({ 
       url: this.API_URL,
-      // data: params,
+      data: params,
       dataType: 'json',
       success: function(data) {
         this.setState({data: data});
