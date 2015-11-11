@@ -28,8 +28,7 @@ module WatsonTwitterApiHelper
     {
       :male => [],
       :female => [],
-      :unknown => [],
-      :"non_existent_key_gender" => []
+      :unknown => []
     }
   end
 
