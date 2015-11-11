@@ -35,7 +35,7 @@ var App = React.createClass({
   render: function() {
     return (
       <div>
-        <PrimaryPane data={this.state.data} onUsernameSubmit={this.handleUsernameSubmit} className={this.state.sideshow} />
+        <PrimaryPane mapData={this.state.data.map} data={this.state.data} onUsernameSubmit={this.handleUsernameSubmit} className={this.state.sideshow} />
         <SidePane className={this.state.sideshow} clicktabClick={this.handleSideshow} tweetData={this.state.data.tweets}/>
       </div>
     )

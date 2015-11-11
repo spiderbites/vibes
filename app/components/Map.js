@@ -13,10 +13,18 @@ var Map = React.createClass({
     // keep track of markers
     this.markers = [];
     // for testing purposes, generate and add random markers in north america
-    setInterval(this.generateRandomCoords, this.props.pollInterval);
+    // setInterval(this.generateRandomCoords, this.props.pollInterval);
   },
 
   componentDidUpdate: function(){
+    // need some logic here to clear markers?
+    // also would be good to calculate a busy region of the map to zoom on
+    debugger;
+    if (!(this.props.data === undefined)) {
+      this.props.data.map(function(geo_array) {
+        this.addMarker(geo_array[1], geo_array[0], geo_array[2]);
+      }.bind(this));
+    }
   },
 
   getInitialState: function() {
@@ -89,12 +97,12 @@ var Map = React.createClass({
     };
 
     var map = new google.maps.Map(document.getElementById('map'), mapOptions);
-    var that = this;
-    map.data.setStyle(function(sentimentValue) {
-      return {
-        icon: that.getCircle(sentimentValue)
-      }
-    });
+    // var that = this;
+    // map.data.setStyle(function(sentimentValue) {
+    //   return {
+    //     icon: that.getCircle(sentimentValue)
+    //   }
+    // });
 
     return map;
 
@@ -114,20 +122,35 @@ var Map = React.createClass({
   
   /**
   * Create and add a new marker at lat, lng
+  * sentimentValue must be one of "neutral", "positive" or "negative"
   */
   addMarker: function(lat, lng, sentimentValue) {
+    debugger;
     // add to the markers array
     this.markers.push({lat: lat, lng: lng});
+
+    var fillColor;
+    switch(sentimentValue) {
+      case "neutral":
+        fillColor = "black";
+        break;
+      case "positive":
+        fillColor = "green";
+        break;
+      case "negative":
+        fillColor = "red";
+        break;
+    }
 
     // actually add the marker to the map
     var marker = new google.maps.Marker({
       icon: {
         path: google.maps.SymbolPath.CIRCLE,
-        fillColor: 'red',
+        fillColor: fillColor,
         fillOpacity: .2,
         strokeColor: 'white',
         strokeWeight: .5,
-        scale: Math.pow(2, sentimentValue) / 2
+        scale: 5
       },
       position: {lat: lat, lng: lng},
       map: this.map
