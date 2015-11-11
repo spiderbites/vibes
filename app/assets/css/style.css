@@ -309,8 +309,7 @@ input[type=range]:focus::-ms-fill-upper {
   border: 1px solid rgba(0,0,0,0.6);
   border-radius: 4px 0 0 4px;
   text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
-  height: 10%;
-  padding: 6%;
+  padding: 5%;
 }
 
 .tweet.sentiment-negative {

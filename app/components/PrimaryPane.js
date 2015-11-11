@@ -43,7 +43,7 @@ var PrimaryPane = React.createClass({
         <div className="arbitrary">
           <Header onUsernameSubmit={this.handleUsernameSubmit}/>
           <Navbar selectContent={this.switchContent}/>
-          <Content contentClasses={this.state.contentClasses} data={this.props.data}/>
+          <Content contentClasses={this.state.contentClasses} mapData={this.props.mapData} data={this.props.data}/>
           <Slider/>
         </div>
       </div>
