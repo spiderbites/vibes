@@ -21,6 +21,9 @@ module Api
     # config.i18n.default_locale = :de
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
+    # puts Rails.root
+    # config.autoload_paths += "#{Rails.root}/app/services"
+    config.autoload_paths << Rails.root.join('app/services')
     config.active_record.raise_in_transactional_callbacks = true
   end
 end
