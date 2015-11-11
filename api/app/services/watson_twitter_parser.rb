@@ -8,7 +8,7 @@ class WatsonTwitterParser
     @data = order_by_sentiment
     @config = config
     @tweets = []
-    # set_meta_data
+    set_meta_data
     parse
   end
 
@@ -60,5 +60,16 @@ class WatsonTwitterParser
         ordering = data[:sentiment].downcase.to_sym
         add(ordering, data)
       end
+    end
+
+    def set_meta_data
+      @meta_data = {
+        next: @unrefined_data['related']['next']['href'].split('?q=')[1],
+        quantity: @unrefined_data['search']['results'].to_i,
+        from: @unrefined_data['related']['next']['href'].split('&')
+                .select { |href_portion| href_portion.include?('from=') }[0]
+                .split('=')[1]
+                .to_i
+      }
     end
 end

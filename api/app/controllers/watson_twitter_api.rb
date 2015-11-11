@@ -17,7 +17,7 @@ class WatsonTwitterApi
   def initialize(parameters, changes)
     @from = "&from=#{parameters[:from]}"
     time_param = obtain_time_param(parameters)
-    @query = create_query(parameters)
+    @query = changes.empty? ? create_query(parameters) : changes
     @config = {
       time: [time_param, parameters[time_param]],
       slices: (parameters[:in_slices_of] || 48).to_i
@@ -32,7 +32,10 @@ class WatsonTwitterApi
     query = @query + @from
     response = self.class.get(SEARCH + "#{query}", @@auth)
     parser = WatsonTwitterParser.new(response, @config)
-    {data: parser.data}
+    {
+      meta_data: parser.meta_data,
+      data: parser.data
+    }
   end
 
   private

@@ -13,10 +13,10 @@ class VibesController < ApplicationController
     parameters = convert_string_hash_to_sym_hash(check_params)
     parameters[:epoch] = Time.now.to_i
     parameters[:order_by] = 'sentiment'
-    changes = determine_changes(get_prev_params, parameters)
+    # changes = determine_changes(get_prev_params, parameters)
 
     if sanity_check_passed?(parameters)
-      render json: process_search(parameters, changes)
+      render json: process_search(parameters, {})
     else
       render json: handle_jsonp({ errors: sanity_violations(parameters), params: params })
     end
@@ -43,12 +43,19 @@ class VibesController < ApplicationController
     end
 
     def process_search(parameters, changes)
-      watsonApi = WatsonTwitterApi.new(parameters, changes)
+      acc = []
+      meta = nil
+      next_url = ''
+      while (!meta || (meta[:from] < meta[:quantity])) do
+        watsonApi = WatsonTwitterApi.new(parameters, next_url)
 
-      results = watsonApi.get
-      # cookies[:vibes] = {value: parameters.to_json}
-
-      handle_jsonp([parameters[:next_call], changes, results])
+        results = watsonApi.get
+        acc << results
+        meta = results[:meta_data]
+        next_url = meta[:next]
+        puts meta
+      end
+      handle_jsonp(acc)
     end
 
     def cors_set_access_control_headers
