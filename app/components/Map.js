@@ -15,9 +15,12 @@ var Map = React.createClass({
   },
 
   componentDidUpdate: function(){
-    // need some logic here to clear markers?
+
+    // super naive clearing markers on every update
+    this.clearAllMarkers();
+    
     // also would be good to calculate a busy region of the map to zoom on
-    if (!(this.props.data === undefined)) {
+    if (!(this.props.data === [])) {
       this.props.data.map(function(geo_array) {
         this.addMarker(geo_array[1], geo_array[0], geo_array[2]);
       }.bind(this));
@@ -25,8 +28,6 @@ var Map = React.createClass({
   },
 
   getInitialState: function() {
-    // tbd, what state are we saving, do we even save it in Map or in a parent component?
-    //return {coords: []};  
     return null;
   },
 
@@ -61,8 +62,7 @@ var Map = React.createClass({
   */
   addMarker: function(lat, lng, sentimentValue) {
     // add to the markers array
-    this.markers.push({lat: lat, lng: lng});
-
+    
     var fillColor;
     switch(sentimentValue) {
       case "neutral":
@@ -89,6 +89,15 @@ var Map = React.createClass({
       position: {lat: lat, lng: lng},
       map: this.map
     });
+
+    this.markers.push(marker);
+  },
+
+  clearAllMarkers: function() {
+    for (var i = 0; i < this.markers.length; i++) {
+      this.markers[i].setMap(null);
+    }
+    this.markers.length = 0;
   }
 });
 
