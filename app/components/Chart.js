@@ -19,6 +19,8 @@ var Chart = React.createClass({
     nextProps.data.forEach(function(element, index) {
       that.state.data.datasets[index].data = element;
     });
+
+    // debugger;
   },
 
   getInitialState: function() {
@@ -58,8 +60,7 @@ var Chart = React.createClass({
       ]
     };
     return {
-      data: data,
-      // isRedrawNeeded: false
+      data: data
     };
   },
 

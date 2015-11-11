@@ -52,14 +52,16 @@ var Content = React.createClass({
   // },
 
   componentWillReceiveProps: function(nextProps) {
-    this.setState({
-      chartData: [
-        nextProps.data.stats.neutral.slice(1),
-        nextProps.data.stats.negative.slice(1),
-        nextProps.data.stats.positive.slice(1)
-      ],
-      chartLabels: nextProps.data.time_labels
-    });
+    if (nextProps.data.stats.neutral != undefined) {
+      this.setState({
+        chartData: [
+          nextProps.data.stats.neutral.slice(1),
+          nextProps.data.stats.negative.slice(1),
+          nextProps.data.stats.positive.slice(1)
+        ],
+        chartLabels: nextProps.data.time_labels
+      });
+    }
   },
 
   render: function() {
