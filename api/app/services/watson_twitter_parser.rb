@@ -24,7 +24,7 @@ class WatsonTwitterParser
   def extract(unit)
     e = unit
     gender = (e['cde']['author']['gender'] rescue "unknown").to_s
-    sentiment = (e['cde']['content']['sentiment']['polarity'] rescue "").to_s
+    sentiment = (e['cde']['content']['sentiment']['polarity'] rescue "neutral").to_s
 
     {
       gender: gender.downcase,
@@ -123,7 +123,7 @@ class WatsonTwitterParser
     end
 
     def classify_sentiment(sentiment)
-      if sentiment == "" || sentiment == 'ambivalent'
+      if sentiment == 'ambivalent'
         'neutral'
       else
         sentiment
