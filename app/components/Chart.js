@@ -13,6 +13,8 @@ var Chart = React.createClass({
   },
 
   componentWillReceiveProps: function(nextProps) {
+    this.state.data.labels = nextProps.labels;
+
     var that = this;
     nextProps.data.forEach(function(element, index) {
       that.state.data.datasets[index].data = element;
@@ -55,7 +57,10 @@ var Chart = React.createClass({
         }
       ]
     };
-    return {data: data};
+    return {
+      data: data,
+      // isRedrawNeeded: false
+    };
   },
 
   render: function(){
@@ -64,7 +69,7 @@ var Chart = React.createClass({
     return (
       <div className={"chart " + this.props.className}>
         <div className="canvas-holder">
-          <RChartJS.Line data={this.state.data} options={this.props.options} ref="lineChart" />
+          <RChartJS.Line data={this.state.data} options={this.props.options} ref="lineChart" redraw />
         </div>
         <div className="chart-legend" dangerouslySetInnerHTML={{ __html: legend }} />
       </div>
