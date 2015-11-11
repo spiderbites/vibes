@@ -53,6 +53,7 @@ body {
 .tweets {
   overflow: scroll;
   height: 100%;
+  font-family: helvetica, sans-serif;
 }
 
 .side-pane .clicktab {
