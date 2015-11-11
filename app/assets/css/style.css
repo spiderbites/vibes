@@ -313,11 +313,11 @@ input[type=range]:focus::-ms-fill-upper {
   padding: 6%;
 }
 
-.tweet.sentiment-NEGATIVE {
+.tweet.sentiment-negative {
   background: #9C2E2E;
 }
 
-.tweet.sentiment-POSITIVE {
+.tweet.sentiment-positive {
   background: #446744;
 }
 

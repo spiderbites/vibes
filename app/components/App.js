@@ -9,13 +9,12 @@ var App = React.createClass({
   // API_URL: "http://localhost:3030/api/tweets",
 
   getInitialState: function() {
-    return { sideshow: '', data: {} }
+    return { sideshow: '', data: {time_labels: [], stats: {}, tweets: []} }
   },
 
   handleUsernameSubmit: function(params) {
     if (!("hours" in params))
-      params["hours"] = 1;
-    debugger;
+      params["hours"] = "1";
     this.loadDataFromServer(params)
   },
 
@@ -25,7 +24,7 @@ var App = React.createClass({
       data: params,
       dataType: 'json',
       success: function(data) {
-        this.setState({data: data});
+        this.setState({data: data[2].data});
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(params, status, err.toString());
@@ -37,7 +36,7 @@ var App = React.createClass({
     return (
       <div>
         <PrimaryPane data={this.state.data} onUsernameSubmit={this.handleUsernameSubmit} className={this.state.sideshow} />
-        <SidePane className={this.state.sideshow} clicktabClick={this.handleSideshow} tweetData={this.state.data}/>
+        <SidePane className={this.state.sideshow} clicktabClick={this.handleSideshow} tweetData={this.state.data.tweets}/>
       </div>
     )
   },
