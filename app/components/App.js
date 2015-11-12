@@ -50,8 +50,8 @@ var App = React.createClass({
     if (this.state.q === q) {
       this.setState({
         mapData: {new: data.map, old: (this.state.mapData.new).concat(this.state.mapData.old)},
-        tweetData: (this.state.tweetData).concat(data.tweets)
-      // chartData?
+        tweetData: (this.state.tweetData).concat(data.tweets),
+        chartData: data.stats
       });
     }
 
@@ -60,7 +60,7 @@ var App = React.createClass({
       this.setState({
         mapData: {new: data.map, old: []},
         tweetData: data.tweets,
-        // chartData?
+        chartData: {stats: data.stats, time_labels: data.time_labels},
         q: q
       });
     }
@@ -69,7 +69,7 @@ var App = React.createClass({
   render: function() {
     return (
       <div>
-        <PrimaryPane mapData={this.state.mapData} data={this.state.data} onQuerySubmit={this.handleQuerySubmit} className={this.state.sideshow} />
+        <PrimaryPane mapData={this.state.mapData} chartData={this.state.chartData} onQuerySubmit={this.handleQuerySubmit} className={this.state.sideshow} />
         <SidePane className={this.state.sideshow} clicktabClick={this.handleSideshow} tweetData={this.state.tweetData}/>
       </div>
     )
