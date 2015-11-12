@@ -22,6 +22,16 @@ class VibesController < ApplicationController
     end
   end
 
+  def results
+    q = params[:q].split(',')
+    aggregation = {
+      time: q[0],
+      slices: q[1]
+    }
+    result = aggregate(aggregation)
+    render json: result
+  end
+
   private
     def get_prev_params
       cookies[:vibes].nil? ? {} : convert_string_hash_to_sym_hash(JSON.parse(cookies[:vibes]))
@@ -46,24 +56,14 @@ class VibesController < ApplicationController
       batches = []
       meta = nil
       next_url = ''
-      while (!meta || (meta[:from] < meta[:quantity])) do
-        watsonApi = WatsonTwitterApi.new(parameters, next_url)
-
-        results = watsonApi.get
-        batches << results
-        meta = results[:meta_data]
-        next_url = meta[:next]
-        puts meta
-      end
-      save_to_db(batches)
-      handle_jsonp(batches)
-    end
-
-    def save_to_db(batches)
-      batches.each do |batch|
-        url = URI.decode(batch[:meta_data][:current_url].split('&from=')[0])
-        batch[:data].each { |e| Tweet.create e.merge({url: url} ) }
-      end
+      # while (!meta || (meta[:from] < meta[:quantity])) do
+        Resque.enqueue(Background, parameters, next_url)
+        # Resque.enqueue(WatsonTwitterApi, *[parameters, next_url])
+        # binding.pry
+      # end
+      # save_to_db(WatsonTwitterApi.batches)
+      # handle_jsonp(WatsonTwitterApi.batches)
+      []
     end
 
     def cors_set_access_control_headers
@@ -72,5 +72,9 @@ class VibesController < ApplicationController
       headers['Access-Control-Request-Method'] = '*'
       headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
       headers['Access-Control-Allow-Credentials'] = 'true'
+    end
+
+    def aggregate(aggregation)
+      Tweet.all
     end
 end

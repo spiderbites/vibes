@@ -24,6 +24,7 @@ module Api
     # puts Rails.root
     # config.autoload_paths += "#{Rails.root}/app/services"
     config.autoload_paths << Rails.root.join('app/services')
+    config.autoload_paths << Rails.root.join('app/workers')
     config.active_record.raise_in_transactional_callbacks = true
   end
 end

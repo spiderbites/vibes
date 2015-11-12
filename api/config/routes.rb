@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   get 'search' => 'vibes#search'
+  get 'results/:aggregation' => 'vibes#results'
   root 'vibes#index'
+  mount Resque::Server, :at => "/resque"
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
