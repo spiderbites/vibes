@@ -23,12 +23,11 @@ class VibesController < ApplicationController
   end
 
   def results
-    q = params[:q].split(',')
-    aggregation = {
-      time: q[0],
-      slices: q[1]
+    unit = {
+      type: :by_minutes,
+      quantity: 6
     }
-    result = aggregate(aggregation)
+    result = Tweet.statistics(unit)
     render json: result
   end
 
