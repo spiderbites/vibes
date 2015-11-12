@@ -76,10 +76,10 @@ var App = React.createClass({
 
     // This is a new query
     else {
-      if (updateInterval != undefined) { clearInterval(updateInterval) }
-      var updateInterval = setInterval(function() {
-        nextData();
-      }, 60000);
+      // if (updateInterval != undefined) { clearInterval(updateInterval) }
+      // var updateInterval = setInterval(function() {
+      //   nextData();
+      // }, 60000);
 
       this.setState({
         mapData: {new: data.map, old: []},
