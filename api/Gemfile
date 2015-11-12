@@ -29,6 +29,8 @@ gem 'dotenv-rails', :groups => [:development, :test]
 
 gem 'pry'
 gem 'pry-nav'
+gem 'resque', :require => "resque/server"
+
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
