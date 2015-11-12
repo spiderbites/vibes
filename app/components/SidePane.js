@@ -5,7 +5,7 @@ var SidePane = React.createClass({
   render: function() {
     return (
       <div className={"side-pane " + this.props.className}>
-        <div className="clicktab" onClick={this.props.clicktabClick}></div>
+        <div className="clicktab" onClick={this.props.clicktabClick}><i className="fa fa-twitter"></i></div>
         <TweetList tweetData={this.props.tweetData} />
       </div>
     )
