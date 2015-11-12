@@ -13,10 +13,10 @@ function rand(min, max, num) {
 }
 
 var Content = React.createClass({
-  componentDidMount: function() {
-    // change data to test redrawing
-    setInterval(this.newData, 1000000);
-  },
+  // componentDidMount: function() {
+  //   // change data to test redrawing
+  //   setInterval(this.newData, 1000);
+  // },
 
   getInitialState: function() {
     return {
@@ -38,22 +38,35 @@ var Content = React.createClass({
     };
   },
 
-  newData: function() {
-    var labels = this.state.chartLabels;
-    labels.push(labels.shift());
-    this.setState({
-      chartData: [this.state.chartData[0].slice(1).concat(rand(250, 500, 1)), 
-                  this.state.chartData[1].slice(1).concat(rand(0, 150, 1)),
-                  this.state.chartData[2].slice(1).concat(rand(0, 500, 1))],
-      chartLabels: labels
-    });
+  // newData: function() {
+  //   var labels = this.state.chartLabels;
+  //   labels.push(labels.shift());
+  //   debugger;
+  //   this.setState({
+  //     chartData: [this.state.chartData[0].slice(1).concat(rand(250, 500, 1)), 
+  //                 this.state.chartData[1].slice(1).concat(rand(0, 150, 1)),
+  //                 this.state.chartData[2].slice(1).concat(rand(0, 500, 1))],
+  //     chartLabels: labels
+  //   });
 
+  // },
+
+  componentWillReceiveProps: function(nextProps) {
+    if (nextProps.data.stats.neutral != undefined) {
+      this.setState({
+        chartData: [
+          nextProps.data.stats.neutral.slice(1),
+          nextProps.data.stats.negative.slice(1),
+          nextProps.data.stats.positive.slice(1)
+        ],
+        chartLabels: nextProps.data.time_labels
+      });
+    }
   },
 
   render: function() {
     // if (Object.keys(this.props.data).length !== 0)
     //   console.log("I'm the CONTENT and i got some data in my props. there's this many tweets about that " + this.props.data[2].quantity)
-
     return (
       <div className={"content"}>
         <Chart className={this.props.contentClasses['Chart']} data={this.state.chartData} labels={this.state.chartLabels} options={this.props.chartOptions}/>
