@@ -13,8 +13,13 @@ var App = React.createClass({
   },
 
   handleQuerySubmit: function(params) {
-    if (!("hours" in params) || params["hours"] === "")
-      params["hours"] = "1";
+    var zero = ["", "0", undefined]
+
+    // default to one hour if no time specified
+    if (params["hours"] === "")
+      params["hours"] = "1"
+    else if (params["days"] === "")
+      params["days"] = "1"
     this.loadDataFromServer(params);
   },
 

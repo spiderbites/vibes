@@ -290,6 +290,18 @@ input[type="submit"] {
   margin-left:10px;
 }
 
+input[type="radio"] {
+  position:relative;
+  top:25%;
+  margin-left:10px;
+}
+
+.radio_buttons {
+  display:inline-block;
+  position:relative;
+  top:25%;
+}
+
 .content {
   position: absolute;
   top: 170px;
