@@ -51,7 +51,10 @@ var App = React.createClass({
       this.setState({
         mapData: {new: data.map, old: (this.state.mapData.new).concat(this.state.mapData.old)},
         tweetData: (this.state.tweetData).concat(data.tweets),
-        chartData: data.stats
+
+        // definitely have to do some work here to merge old and new chart data
+        // this will hopefully produce some actually meaningful charts
+        chartData: {stats: data.stats, time_labels: data.time_labels}
       });
     }
 
