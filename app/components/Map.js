@@ -14,17 +14,23 @@ var Map = React.createClass({
     this.markers = [];
   },
 
-  componentDidUpdate: function(){
+  componentWillReceiveProps: function(nextProps) {
+    // if we have new data with no old data, then there's been a new query
+    // so clear all the map markers.
+    //  TODO: we may want to trigger the clear as soon as the user submits a new query
+    if (nextProps.data.new.length > 0 && nextProps.data.old.length === 0) {
+      this.clearAllMarkers();
+    }
 
-    // super naive clearing markers on every update
-    this.clearAllMarkers();
-    
-    // also would be good to calculate a busy region of the map to zoom on
-    if (!(this.props.data === [])) {
-      this.props.data.map(function(geo_array) {
+    // add markers for all new geo points we received
+    if (nextProps.data.new !== []) {
+      nextProps.data.new.map(function(geo_array) {
         this.addMarker(geo_array[1], geo_array[0], geo_array[2]);
       }.bind(this));
     }
+  },
+
+  componentDidUpdate: function(){
   },
 
   getInitialState: function() {

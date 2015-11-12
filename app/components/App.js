@@ -9,13 +9,12 @@ var App = React.createClass({
   // API_URL: "http://localhost:3030/api/tweets",
 
   getInitialState: function() {
-    return { sideshow: '', mapData: [], tweetData: [], q: ""};
+    return { sideshow: '', mapData: {new: [], old: []}, tweetData: [], q: ""};
   },
 
   handleQuerySubmit: function(params) {
     if (!("hours" in params) || params["hours"] === "")
       params["hours"] = "1";
-    debugger;
     this.loadDataFromServer(params);
   },
 
@@ -25,7 +24,6 @@ var App = React.createClass({
       data: params,
       dataType: 'json',
       success: function(data) {
-        debugger;
         // update data with received
         this.updateData(data[2].data, params.q);
 
@@ -42,18 +40,25 @@ var App = React.createClass({
     });
   },
 
+  /**
+   * This function is called every time we load new data, and, depending on the type of data
+   * (tweets, geodata, chartdata) updates the appropriate state, and does something intelligent
+   * to combine it with old data if there is any (and it makes sense to).
+   */
   updateData: function(data, q) {
-    // repeat query
+    // This is a repeat query
     if (this.state.q === q) {
       this.setState({
-        mapData: (this.state.mapData).concat(data.map),
+        mapData: {new: data.map, old: (this.state.mapData.new).concat(this.state.mapData.old)},
         tweetData: (this.state.tweetData).concat(data.tweets)
       // chartData?
       });
     }
+
+    // This is a new query
     else {
       this.setState({
-        mapData: data.map,
+        mapData: {new: data.map, old: []},
         tweetData: data.tweets,
         // chartData?
         q: q
