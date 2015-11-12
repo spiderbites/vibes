@@ -146,7 +146,7 @@ input[type=search] {
   background: #ededed url(../images/search-icon.png) no-repeat 9px center;
   border: solid 1px #ccc;
   padding: 9px 10px 9px 32px;
-  width: 120px;
+  width: 140px;
   
   -webkit-border-radius: 10em;
   -moz-border-radius: 10em;
@@ -282,6 +282,12 @@ input[type=number] {
     padding-left: 5px;
     border-radius: 1em;
     width: 50px;
+}
+
+input[type="submit"] {
+  position: relative;
+  top: 25%;
+  margin-left:10px;
 }
 
 .content {
