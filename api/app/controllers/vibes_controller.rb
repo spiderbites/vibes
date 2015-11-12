@@ -23,9 +23,10 @@ class VibesController < ApplicationController
   end
 
   def results
+    puts params
     unit = {
-      type: :by_minutes,
-      quantity: 6
+      type: params[:type].to_sym,
+      quantity: params[:quantity].to_i
     }
     result = Tweet.statistics(unit)
     render json: result
