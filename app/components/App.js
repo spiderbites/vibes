@@ -29,8 +29,11 @@ var App = React.createClass({
       data: params,
       dataType: 'json',
       success: function(data) {
+        if (params.from == undefined) { var isNextPage = false; }
+        else { var isNextPage = true; }
+
         // update data with received
-        this.updateData(data[2].data, params.q);
+        this.updateData(data[2].data, params.q, isNextPage);
 
         // Watson restricts us to 500 results at a time
         // check if there is more and run again until we've got it all for the time period requested
@@ -53,9 +56,22 @@ var App = React.createClass({
    * (tweets, geodata, chartdata) updates the appropriate state, and does something intelligent
    * to combine it with old data if there is any (and it makes sense to).
    */
-  updateData: function(data, q) {
+  updateData: function(data, q, isNextPage) {
     // This is a repeat query
+    
+    data.time_labels = data.time_labels.map(function(label) {
+      return label.split(':').slice(0,2).join(':');
+    });
+
     if (this.state.q === q) {
+      if (isNextPage) {
+        for (var i = 0; i < data.time_labels.length; i++) {
+          data.stats.positive[i] = data.stats.positive[i] + this.state.chartData.stats.positive[i];
+          data.stats.neutral[i] = data.stats.neutral[i] + this.state.chartData.stats.neutral[i];
+          data.stats.negative[i] = data.stats.negative[i] + this.state.chartData.stats.negative[i];
+        }
+      }
+
       this.setState({
         mapData: {new: data.map, old: (this.state.mapData.new).concat(this.state.mapData.old)},
         tweetData: (this.state.tweetData).concat(data.tweets),
@@ -68,6 +84,11 @@ var App = React.createClass({
 
     // This is a new query
     else {
+      // if (updateInterval != undefined) { clearInterval(updateInterval) }
+      // var updateInterval = setInterval(function() {
+      //   nextData();
+      // }, 60000);
+
       this.setState({
         mapData: {new: data.map, old: []},
         tweetData: data.tweets,
@@ -76,6 +97,22 @@ var App = React.createClass({
       });
     }
   },
+  // nextData: function() {
+  //   // Get index of first new timestamp in array
+  //   var oldLastTimestamp = this.state.chartData.time_labels[this.state.chartData.time_labels.length - 1]
+  //   var indexOfFirstNewTimestamp = data.time_labels.indexOf(oldLastTimestamp) + 1;
+    
+  //   var newTimestamps = data.time_labels.slice(indexOfFirstNewTimestamp);
+  //   var newNeutralStats = data.stats.neutral.slice(indexOfFirstNewTimestamp);
+  //   var newNegativeStats = data.stats.negative.slice(indexOfFirstNewTimestamp);
+  //   var newPositiveStats = data.stats.positive.slice(indexOfFirstNewTimestamp);
+
+  //   data.time_labels = this.state.chartData.time_labels.slice(newTimestamps.length).concat(newTimestamps);
+  //   data.stats.neutral = this.state.chartData.stats.neutral.slice(newNeutralStats.length).concat(newNeutralStats);
+  //   data.stats.negative = this.state.chartData.stats.negative.slice(newNegativeStats.length).concat(newNegativeStats);
+  //   data.stats.positive = this.state.chartData.stats.positive.slice(newPositiveStats.length).concat(newPositiveStats);
+
+  // },
 
   render: function() {
     return (

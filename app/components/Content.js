@@ -35,11 +35,12 @@ var Content = React.createClass({
 
   componentWillReceiveProps: function(nextProps) {
     if (nextProps.chartData != undefined) {
+      // debugger;
       this.setState({
         chartData: [
-          nextProps.chartData.stats.neutral.slice(1),
-          nextProps.chartData.stats.negative.slice(1),
-          nextProps.chartData.stats.positive.slice(1)
+          nextProps.chartData.stats.neutral.slice(0, -1),
+          nextProps.chartData.stats.negative.slice(0, -1),
+          nextProps.chartData.stats.positive.slice(0, -1)
         ],
         chartLabels: nextProps.chartData.time_labels
       });
