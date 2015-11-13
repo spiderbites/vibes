@@ -41,7 +41,7 @@ var PrimaryPane = React.createClass({
     return (
       <div className={"primary-pane " + this.props.className}>
         <div className="arbitrary">
-          <Header onQuerySubmit={this.handleQuerySubmit}/>
+          <Header onQuerySubmit={this.handleQuerySubmit} currentQuery={this.props.currentQuery} done={this.props.done} />
           <Navbar selectContent={this.switchContent}/>
           <Content contentClasses={this.state.contentClasses} mapData={this.props.mapData} chartData={this.props.chartData}/>
           <Slider/>

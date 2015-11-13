@@ -9,11 +9,11 @@ var App = React.createClass({
   // API_URL: "http://localhost:3030/api/tweets",
 
   getInitialState: function() {
-    return { sideshow: '', mapData: {new: [], old: []}, tweetData: [], q: ""};
+    return { sideshow: '', mapData: {new: [], old: []}, tweetData: [], q: "", done: true};
   },
 
   handleQuerySubmit: function(params) {
-    var zero = ["", "0", undefined]
+    this.setState({done: false});
 
     // default to one hour if no time specified
     if (params["hours"] === "")
@@ -37,6 +37,9 @@ var App = React.createClass({
         if (data[2].quantity !== data[2].from) {
           params.from = data[2].from;
           this.loadDataFromServer(params);
+        }
+        else {
+          this.setState({done: true});
         }
       }.bind(this),
       error: function(xhr, status, err) {
@@ -77,8 +80,16 @@ var App = React.createClass({
   render: function() {
     return (
       <div>
-        <PrimaryPane mapData={this.state.mapData} chartData={this.state.chartData} onQuerySubmit={this.handleQuerySubmit} className={this.state.sideshow} />
-        <SidePane className={this.state.sideshow} clicktabClick={this.handleSideshow} tweetData={this.state.tweetData}/>
+        <PrimaryPane mapData={this.state.mapData} 
+                     chartData={this.state.chartData}
+                     onQuerySubmit={this.handleQuerySubmit}
+                     className={this.state.sideshow}
+                     currentQuery={this.state.q}
+                     done={this.state.done} />
+
+        <SidePane className={this.state.sideshow} 
+                  clicktabClick={this.handleSideshow} 
+                  tweetData={this.state.tweetData}/>
       </div>
     )
   },
