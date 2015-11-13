@@ -84,10 +84,6 @@ var App = React.createClass({
 
     // This is a new query
     else {
-      // if (updateInterval != undefined) { clearInterval(updateInterval) }
-      // var updateInterval = setInterval(function() {
-      //   nextData();
-      // }, 60000);
 
       this.setState({
         mapData: {new: data.map, old: []},
@@ -97,22 +93,6 @@ var App = React.createClass({
       });
     }
   },
-  // nextData: function() {
-  //   // Get index of first new timestamp in array
-  //   var oldLastTimestamp = this.state.chartData.time_labels[this.state.chartData.time_labels.length - 1]
-  //   var indexOfFirstNewTimestamp = data.time_labels.indexOf(oldLastTimestamp) + 1;
-    
-  //   var newTimestamps = data.time_labels.slice(indexOfFirstNewTimestamp);
-  //   var newNeutralStats = data.stats.neutral.slice(indexOfFirstNewTimestamp);
-  //   var newNegativeStats = data.stats.negative.slice(indexOfFirstNewTimestamp);
-  //   var newPositiveStats = data.stats.positive.slice(indexOfFirstNewTimestamp);
-
-  //   data.time_labels = this.state.chartData.time_labels.slice(newTimestamps.length).concat(newTimestamps);
-  //   data.stats.neutral = this.state.chartData.stats.neutral.slice(newNeutralStats.length).concat(newNeutralStats);
-  //   data.stats.negative = this.state.chartData.stats.negative.slice(newNegativeStats.length).concat(newNegativeStats);
-  //   data.stats.positive = this.state.chartData.stats.positive.slice(newPositiveStats.length).concat(newPositiveStats);
-
-  // },
 
   render: function() {
     return (
