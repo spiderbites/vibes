@@ -13,9 +13,16 @@ var SidePane = React.createClass({
 });
 
 var TweetList = React.createClass({
+
+  timeCompare: function(tweeta, tweetb) {
+    return Date.parse(tweeta.time) - Date.parse(tweetb.time)
+  },
+
   render: function() {
     if (Object.keys(this.props.tweetData).length !== 0) {
-      var tweetNodes = this.props.tweetData.map(function (tweet) {
+      var tweetCopy = this.props.tweetData.slice();
+      tweetCopy.sort(this.timeCompare).reverse();
+      var tweetNodes = tweetCopy.map(function (tweet) {
         return (
           <Tweet tweet={tweet} />
           );
