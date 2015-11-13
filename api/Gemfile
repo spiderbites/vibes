@@ -30,7 +30,9 @@ gem 'dotenv-rails', :groups => [:development, :test]
 gem 'pry'
 gem 'pry-nav'
 gem 'resque', :require => "resque/server"
-
+gem 'resque-scheduler'
+gem 'resque-logger'
+gem 'resque-pool'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 

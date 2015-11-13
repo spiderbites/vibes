@@ -1,4 +1,5 @@
 class Background
+
   @queue = :watson_twitter_api_queue
   @@batches = []
 
@@ -6,21 +7,25 @@ class Background
     hash.keys.reduce({}) {|a,e| a[e.to_sym] = hash[e]; a}
   end
 
-  def self.perform(parameters, changes)
+  def self.perform(url, parameters, changes)
+    Resque.logger.info("")
+    Resque.logger.info "---------START JOB"
+    Resque.logger.info("-------------#{url}, #{parameters}, #{changes}")
     batches = []
     meta = nil
     next_url = ''
-    Rails.logger.debug(parameters.inspect)
     while (!meta || (meta[:from] < meta[:quantity])) do
-      watsonApi = WatsonTwitterApi.new(convert_string_hash_to_sym_hash(parameters), next_url)
-
+      watsonApi = WatsonTwitterApi.new(url, {}, next_url)
+      url = ''
       results = watsonApi.get
-      batches << results
+      save_to_db([results])
+      # batches << results
       meta = results[:meta_data]
       next_url = meta[:next]
-      puts meta
+      Resque.logger.info("------------------#{URI.decode(next_url)}")
+      Resque.logger.info("---------------------#{meta}")
+      sleep 4
     end
-    save_to_db(batches)
   end
 
   def self.save_to_db(batches)
@@ -29,6 +34,4 @@ class Background
       batch[:data].each { |e| Tweet.create e.merge({url: url}) }
     end
   end
-
-
 end

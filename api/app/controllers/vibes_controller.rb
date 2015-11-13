@@ -1,6 +1,7 @@
 class VibesController < ApplicationController
   include VibesHelper
   include ParameterSanity
+  include Timestamp
 
   protect_from_forgery
   after_filter :cors_set_access_control_headers
@@ -13,10 +14,22 @@ class VibesController < ApplicationController
     parameters = convert_string_hash_to_sym_hash(check_params)
     parameters[:epoch] = Time.now.to_i
     parameters[:order_by] = 'sentiment'
+
+    if sanity_check_passed?(parameters)
+      render json: process_search2(parameters, {})
+    else
+      render json: handle_jsonp({ errors: sanity_violations(parameters), params: params })
+    end
+  end
+
+  def db_search
+    parameters = convert_string_hash_to_sym_hash(check_params)
+    parameters[:epoch] = Time.now.to_i
+    parameters[:order_by] = 'sentiment'
     # changes = determine_changes(get_prev_params, parameters)
 
     if sanity_check_passed?(parameters)
-      render json: process_search(parameters, {})
+      render json: process_search(parameters)
     else
       render json: handle_jsonp({ errors: sanity_violations(parameters), params: params })
     end
@@ -52,18 +65,21 @@ class VibesController < ApplicationController
       end
     end
 
-    def process_search(parameters, changes)
+    def process_search(parameters)
       batches = []
       meta = nil
-      next_url = ''
-      # while (!meta || (meta[:from] < meta[:quantity])) do
-        Resque.enqueue(Background, parameters, next_url)
-        # Resque.enqueue(WatsonTwitterApi, *[parameters, next_url])
-        # binding.pry
-      # end
-      # save_to_db(WatsonTwitterApi.batches)
-      # handle_jsonp(WatsonTwitterApi.batches)
+      # Consider implementing a user token facility that identifies the request.
+      BackgroundJobsController.run(parameters)
       []
+    end
+
+    def process_search2(parameters, changes)
+      watsonApi = WatsonTwitterApi.new('', parameters, changes)
+
+      results, parameters[:next_call] = watsonApi.get
+      cookies[:vibes] = {value: parameters.to_json}
+
+      handle_jsonp([parameters[:next_call], changes, results])
     end
 
     def cors_set_access_control_headers
@@ -72,9 +88,5 @@ class VibesController < ApplicationController
       headers['Access-Control-Request-Method'] = '*'
       headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
       headers['Access-Control-Allow-Credentials'] = 'true'
-    end
-
-    def aggregate(aggregation)
-      Tweet.all
     end
 end

@@ -5,8 +5,8 @@ class WatsonTwitterApi
 
   base_uri 'https://cdeservice.mybluemix.net/api/v1'
 
-  @@username = ENV['username']
-  @@password = ENV['password']
+  @@username = ENV['username2']
+  @@password = ENV['password2']
   @@auth = {
     basic_auth: {
       username: @@username,
@@ -14,10 +14,15 @@ class WatsonTwitterApi
     }
   }
 
-  def initialize(parameters, changes)
+  def initialize(url, parameters, changes)
+    @time = time_format(invoke(convert_time_to_method(parameters)))
+    @q = parameters[:q]
+    @location = parameters[:locations]
     @from = "&from=#{parameters[:from]}"
+    @changes = changes
+
     time_param = obtain_time_param(parameters)
-    @query = changes.empty? ? create_query(parameters) : changes
+    @query = url.empty? ? (@changes.empty? ? create_query(parameters) : @changes) : URI.encode(url)
     @config = {
       time: [time_param, parameters[time_param]],
       slices: (parameters[:in_slices_of] || 48).to_i
@@ -31,7 +36,6 @@ class WatsonTwitterApi
   def get
     query = @query + @from
     response = self.class.get(SEARCH + "#{query}", @@auth)
-
     parser = WatsonTwitterParser.new(response, @config)
     {
       meta_data: parser.meta_data.merge({current_url: @query + @from}),
@@ -71,7 +75,7 @@ class WatsonTwitterApi
     def reconstruct_query(parameters)
       r = QUERRYING_PARAMS.reduce("") do |a,e|
         parameters[e] ? a + ' ' + method(e).call(parameters[e]) : a
-      end + ' ' + time_format(invoke(convert_time_to_method(parameters)))
+      end + ' ' + @time
       URI.encode(r)
     end
 end
