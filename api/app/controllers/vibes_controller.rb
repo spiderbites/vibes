@@ -7,7 +7,8 @@ class VibesController < ApplicationController
   after_filter :cors_set_access_control_headers
 
   def index
-    render json: nil
+    QueryParser.new(check_params)
+    render json:
   end
 
   def quick_search
@@ -52,9 +53,9 @@ class VibesController < ApplicationController
     end
 
     def check_params
-      params.permit(:q, :seconds, :minutes, :hours, :days, :weeks, :months,
-                    :years, :range, :order_by, :locations, :gender,
-                    :sentiment, :by_chunks_of, :in_slices_of, :from)
+      params.permit(:q, :range,
+                    :seconds, :minutes, :hours, :days, :weeks, :months, :years,
+                    :location, :stats, :since, :from)
     end
 
     def handle_jsonp(data)
