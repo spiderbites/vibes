@@ -1,6 +1,6 @@
 class LocationParser
 
-  attr_accessor :location
+  attr_reader :location
 
   def initialize(parameters)
     loc = parameters[:location]
@@ -15,7 +15,7 @@ end
 
 class StatsParser
   UNITS = ['by_minutes', 'by_hours', 'by_days']
-  attr_accessor :unit, :quantity
+  attr_reader :unit, :quantity
 
   def initialize(parameters)
     @stats = parameters[:stats]
@@ -30,7 +30,7 @@ end
 
 class TimeParser
   include Timestamp
-  attr_accessor :time_format, :unit, :quantity
+  attr_reader :time_format, :unit, :quantity
 
   def initialize(parameters)
     @unit = obtain_time_unit(parameters)
@@ -70,11 +70,23 @@ class TimeParser
 end
 
 class QueryParser
+  attr_reader :time, :stats, :location
 
   def initialize(parameters)
     @parameters = convert_string_hash_to_sym_hash(parameters)
-    @timeParser = TimeParser.new(@parameters)
-    @statsParser = StatsParser.new(@parameters)
+    @time = TimeParser.new(@parameters)
+    @stats = StatsParser.new(@parameters)
+    @location = LocationParser.new(@parameters)
+
+    @parsers = [@time, @stats, @location]
+  end
+
+  def errors?
+    @parsers.reduce(false) { |a, e| e.errors || a }
+  end
+
+  def errors
+    @parsers.map(&:errors)
   end
 
   private
