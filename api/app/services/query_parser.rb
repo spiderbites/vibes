@@ -1,3 +1,33 @@
+class LocationParser
+
+  attr_accessor :location
+
+  def initialize(parameters)
+    loc = parameters[:location]
+    @location = loc || ""
+  end
+
+  def errors
+    nil
+  end
+
+end
+
+class StatsParser
+  UNITS = ['by_minutes', 'by_hours', 'by_days']
+  attr_accessor :unit, :quantity
+
+  def initialize(parameters)
+    @stats = parameters[:stats]
+    @unit = (stats && stats.split(':')[0]) || 'by_minutes'
+    @quantity = (stats && stats.split(':')[1].to_i) || 6
+  end
+
+  def errors
+    nil
+  end
+end
+
 class TimeParser
   include Timestamp
   attr_accessor :time_format, :unit, :quantity
@@ -7,6 +37,10 @@ class TimeParser
     @since = nil
     @quantity = parameters[@unit]
     @time_format = time_stamp(parameters, @since)
+  end
+
+  def errors
+    nil
   end
 
   private
