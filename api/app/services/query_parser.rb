@@ -1,5 +1,6 @@
 class TimeParser
   include Timestamp
+  attr_accessor :time_format, :unit, :quantity
 
   def initialize(parameters)
     @unit = obtain_time_unit(parameters)
