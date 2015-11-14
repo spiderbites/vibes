@@ -5,7 +5,8 @@ var $ = require('jquery');
 
 var App = React.createClass({
 
-  API_URL: "http://localhost:3000/search",
+  API_SET_URL: "http://localhost:3000/results",
+  API_UPDATE_URL: "http://localhost:3000/search",
   // API_URL: "http://localhost:3030/api/tweets",
 
   getInitialState: function() {
@@ -25,25 +26,32 @@ var App = React.createClass({
 
   loadDataFromServer: function(params) {
     $.ajax({ 
-      url: this.API_URL,
+      url: this.API_SET_URL,
       data: params,
       dataType: 'json',
       success: function(data) {
-        if (params.from == undefined) { var isNextPage = false; }
-        else { var isNextPage = true; }
+        this.setData(data);
+
+        // NEED TO SET INTERVAL TO UPDATE IN REALTIME
+
+        // the below is for grabbing data directly from Watson (through our API) and will be
+        //re-used in our realtime data grabbing function
+
+        // if (params.from == undefined) { var isNextPage = false; }
+        // else { var isNextPage = true; }
 
         // update data with received
-        this.updateData(data[2].data, params.q, isNextPage);
+        // this.updateData(data[2].data, params.q, isNextPage);
 
         // Watson restricts us to 500 results at a time
         // check if there is more and run again until we've got it all for the time period requested
-        if (data[2].quantity !== data[2].from) {
-          params.from = data[2].from;
-          this.loadDataFromServer(params);
-        }
-        else {
-          this.setState({done: true});
-        }
+        // if (data[2].quantity !== data[2].from) {
+          // params.from = data[2].from;
+          // this.loadDataFromServer(params);
+        // }
+        // else {
+          // this.setState({done: true});
+        // }
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(params, status, err.toString());
@@ -56,43 +64,55 @@ var App = React.createClass({
    * (tweets, geodata, chartdata) updates the appropriate state, and does something intelligent
    * to combine it with old data if there is any (and it makes sense to).
    */
-  updateData: function(data, q, isNextPage) {
-    // This is a repeat query
-    
+  setData: function(data) {
+    debugger;
     data.time_labels = data.time_labels.map(function(label) {
       return label.split(':').slice(0,2).join(':');
     });
 
-    if (this.state.q === q) {
-      if (isNextPage) {
-        for (var i = 0; i < data.time_labels.length; i++) {
-          data.stats.positive[i] = data.stats.positive[i] + this.state.chartData.stats.positive[i];
-          data.stats.neutral[i] = data.stats.neutral[i] + this.state.chartData.stats.neutral[i];
-          data.stats.negative[i] = data.stats.negative[i] + this.state.chartData.stats.negative[i];
-        }
-      }
-
-      this.setState({
-        mapData: {new: data.map, old: (this.state.mapData.new).concat(this.state.mapData.old)},
-        tweetData: (this.state.tweetData).concat(data.tweets),
-
-        // definitely have to do some work here to merge old and new chart data
-        // this will hopefully produce some actually meaningful charts
-        chartData: {stats: data.stats, time_labels: data.time_labels}
-      });
-    }
-
-    // This is a new query
-    else {
-
-      this.setState({
-        mapData: {new: data.map, old: []},
-        tweetData: data.tweets,
-        chartData: {stats: data.stats, time_labels: data.time_labels},
-        q: q
-      });
-    }
+    this.setState({
+      mapData: {new: data.map, old: []},
+      tweetData: data.tweets,
+      chartData: {stats: data.stats, time_labels: data.time_labels},
+    });
   },
+  // updateData: function(data, q, isNextPage) {
+  //   // This is a repeat query
+    
+  //   data.time_labels = data.time_labels.map(function(label) {
+  //     return label.split(':').slice(0,2).join(':');
+  //   });
+
+  //   if (this.state.q === q) {
+  //     if (isNextPage) {
+  //       for (var i = 0; i < data.time_labels.length; i++) {
+  //         data.stats.positive[i] = data.stats.positive[i] + this.state.chartData.stats.positive[i];
+  //         data.stats.neutral[i] = data.stats.neutral[i] + this.state.chartData.stats.neutral[i];
+  //         data.stats.negative[i] = data.stats.negative[i] + this.state.chartData.stats.negative[i];
+  //       }
+  //     }
+
+  //     this.setState({
+  //       mapData: {new: data.map, old: (this.state.mapData.new).concat(this.state.mapData.old)},
+  //       tweetData: (this.state.tweetData).concat(data.tweets),
+
+  //       // definitely have to do some work here to merge old and new chart data
+  //       // this will hopefully produce some actually meaningful charts
+  //       chartData: {stats: data.stats, time_labels: data.time_labels}
+  //     });
+  //   }
+
+  //   // This is a new query
+  //   else {
+
+  //     this.setState({
+  //       mapData: {new: data.map, old: []},
+  //       tweetData: data.tweets,
+  //       chartData: {stats: data.stats, time_labels: data.time_labels},
+  //       q: q
+  //     });
+  //   }
+  // },
 
   render: function() {
     return (
