@@ -39,52 +39,52 @@ module Timestamp
     }
   end
 
-  def past_seconds(seconds)
-    past_time([method_hash(:since, -seconds)])
+  def past_seconds(seconds, since=now)
+    past_time([method_hash(:since, -seconds)], since)
   end
 
-  def past_minutes(minutes)
-    past_seconds(minutes * 60)
+  def past_minutes(minutes, since=now)
+    past_seconds(minutes * 60, since)
   end
 
-  def past_hours(hours)
-    past_minutes(hours * 60)
+  def past_hours(hours, since=now)
+    past_minutes(hours * 60, since)
   end
 
-  def past_1h
-    past_hours(1)
+  def past_1h(since=now)
+    past_hours(1, since)
   end
 
-  def past_24h
-    past_time([:yesterday])
+  def past_24h(since=now)
+    past_time([:yesterday], since)
   end
 
-  def past_days(days)
-    past_hours(24 * days)
+  def past_days(days, since=now)
+    past_hours(24 * days, since)
   end
 
-  def past_week
-    past_time([method_hash(:prev_week)])
+  def past_week(since=now)
+    past_time([method_hash(:prev_week)], since)
   end
 
-  def past_weeks(weeks)
-    past_time((1..weeks).to_a.map {|e| method_hash(:prev_week)})
+  def past_weeks(weeks, since=now)
+    past_time((1..weeks).to_a.map {|e| method_hash(:prev_week)}, since)
   end
 
-  def past_month
-    past_time([:prev_month])
+  def past_month(since=now)
+    past_time([:prev_month], since)
   end
 
-  def past_months(months)
-    past_time((1..months).to_a.map {|e| method_hash(:prev_month)})
+  def past_months(months, since=now)
+    past_time((1..months).to_a.map {|e| method_hash(:prev_month)}, since)
   end
 
-  def past_year
-    past_time([:prev_year])
+  def past_year(since=now)
+    past_time([:prev_year], since)
   end
 
-  def past_years(years)
-    past_time((1..years).to_a.map {|e| method_hash(:prev_year)})
+  def past_years(years, since=now)
+    past_time((1..years).to_a.map {|e| method_hash(:prev_year)}, since)
   end
 
   def past_(_)
