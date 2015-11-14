@@ -37,6 +37,12 @@ class Tweet < ActiveRecord::Base
     #       should be the end point of the interval_query
     #     Either it is on account of both previous reasons.
     #       In this case, two API searches will need to be made according to above two possibilities.
+    #   Either entire query is absent from db and this on account of following:
+    #     Either this is because the db is completely empty
+    #     Either this is because the db is empty with regards to that query
+    #       Either this is because the enquired time range does not overlap anything present in the database
+    #         In such a case if the enquired range is earlier, then update the db to cover the missing gap
+    #       Either this is because there is nothing about the topic present in the database.
     def self.distribute_query_over_db_api(interval_db, interval_query)
       if (interval_db[:from] < interval_query[:from]) &&
         (interval_db[:until] > interval_query[:until])
@@ -138,6 +144,5 @@ class Tweet < ActiveRecord::Base
         tweets: []
       }
     end
-
 end
 

@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
-  get 'search' => 'vibes#search'
-  get 'db_search' => 'vibes#db_search'
+  get 'quick_search' => 'vibes#quick_search'
+  get 'big_search' => 'vibes#big_search'
   get 'results/:aggregation' => 'vibes#results'
   root 'vibes#index'
   mount Resque::Server, :at => "/resque"

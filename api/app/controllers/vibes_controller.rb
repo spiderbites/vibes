@@ -10,7 +10,7 @@ class VibesController < ApplicationController
     render json: nil
   end
 
-  def search
+  def quick_search
     parameters = convert_string_hash_to_sym_hash(check_params)
     # prev_params = cookies[:test].nil? ? {} : convert_string_hash_to_sym_hash(JSON.parse(cookies[:test]))
     parameters[:epoch] = Time.now.to_i
@@ -23,7 +23,7 @@ class VibesController < ApplicationController
     end
   end
 
-  def db_search
+  def big_search
     parameters = convert_string_hash_to_sym_hash(check_params)
     parameters[:epoch] = Time.now.to_i
     parameters[:order_by] = 'sentiment'

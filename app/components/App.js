@@ -24,7 +24,7 @@ var App = React.createClass({
   },
 
   loadDataFromServer: function(params) {
-    $.ajax({ 
+    $.ajax({
       url: this.API_URL,
       data: params,
       dataType: 'json',
@@ -58,7 +58,7 @@ var App = React.createClass({
    */
   updateData: function(data, q, isNextPage) {
     // This is a repeat query
-    
+
     data.time_labels = data.time_labels.map(function(label) {
       return label.split(':').slice(0,2).join(':');
     });
@@ -97,20 +97,20 @@ var App = React.createClass({
   render: function() {
     return (
       <div>
-        <PrimaryPane mapData={this.state.mapData} 
+        <PrimaryPane mapData={this.state.mapData}
                      chartData={this.state.chartData}
                      onQuerySubmit={this.handleQuerySubmit}
                      className={this.state.sideshow}
                      currentQuery={this.state.q}
                      done={this.state.done} />
 
-        <SidePane className={this.state.sideshow} 
-                  clicktabClick={this.handleSideshow} 
+        <SidePane className={this.state.sideshow}
+                  clicktabClick={this.handleSideshow}
                   tweetData={this.state.tweetData}/>
       </div>
     )
   },
-  
+
   handleSideshow: function() {
     this.setState({sideshow: this.state.sideshow === '' ? 'sideshow' : ''}, function() {
       var count = 0;
