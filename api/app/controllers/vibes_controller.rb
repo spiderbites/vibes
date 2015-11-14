@@ -6,9 +6,9 @@ class VibesController < ApplicationController
   protect_from_forgery
   after_filter :cors_set_access_control_headers
 
-  def index
-    QueryParser.new(check_params)
-    render json:
+  def test
+    q_parser = QueryParser.new(check_params)
+    render json: q_parser
   end
 
   def quick_search
