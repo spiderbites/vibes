@@ -104,7 +104,7 @@ class ParametersParser
 end
 
 class QueryParser
-  attr_reader :time, :stats, :location
+  attr_reader :term, :time, :stats, :location
 
   def initialize(parameters)
     @parameters = ParametersParser.new(parameters)
@@ -121,6 +121,6 @@ class QueryParser
   end
 
   def errors
-    @@parsers.map(&:errors)
+    @@parsers.map(&:errors).select(&:presence)
   end
 end
