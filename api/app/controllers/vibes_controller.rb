@@ -2,7 +2,6 @@ class VibesController < ApplicationController
   include VibesHelper
   include ParameterSanity
   include Timestamp
-
   protect_from_forgery
   after_filter :cors_set_access_control_headers
 
@@ -11,11 +10,9 @@ class VibesController < ApplicationController
     if q_parser.errors?
       render json: handle_jsonp({ errors: q_parser.errors, params: params })
     else
-      ActiveRecord::Base.connection.execute("TRUNCATE Caches")
       api = WatsonTwitterInsightsApi.new(q_parser.query)
-      a = api.get
-      Cache.create a[:data]
-      render json: (Cache.statistics q_parser.stats)
+      assembler = JsonAssembler.new(api, q_parser.stats)
+      render json: assembler.json
     end
   end
 

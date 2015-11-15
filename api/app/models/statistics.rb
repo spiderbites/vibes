@@ -11,7 +11,7 @@ class Statistics < ActiveRecord::Base
         :until => @times.last.to_time + (config.quantity).minutes
       }
       intervals = divide_in_intervals(config)
-      calculate(intervals)
+      calculate(intervals, config)
     end
   end
 
@@ -125,16 +125,32 @@ class Statistics < ActiveRecord::Base
       result[1..-2]
     end
 
-    def self.calculate(intervals)
+    def self.calculate(intervals, config)
       result = ['positive', 'negative', 'neutral'].reduce({}) do |a, e|
         a[e] = intervals.map do |e|
           @ordered.where("time < '#{e[1]}' and time >= '#{e[0]}' and sentiment='positive'")
         end.map {|e| e.count}
         a
       end
-      result[:intervals] = intervals.map { |e| e[0].split('T')[1] }
+      result[:timings] = intervals.map { |e| e[0].split('T')[1] }
       result[:tweets] = @ordered
       result
+    end
+
+    def self.calculate_timings(intervals, config)
+      prev_day = ""
+      intervals.map do |interval|
+        current_day, current_time = interval[0].split('T')
+        if [:by_minutes, :by_hours].include?(config.unit)
+          if prev_day != current_day
+            interval[0]
+          else
+            current_time
+          end
+        else
+          current_day
+        end
+      end
     end
 
     def self.empty_db_result
