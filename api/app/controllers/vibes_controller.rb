@@ -12,7 +12,9 @@ class VibesController < ApplicationController
       render json: handle_jsonp({ errors: q_parser.errors, params: params })
     else
       api = WatsonTwitterInsightsApi.new(q_parser.query)
-      render json: api.get
+      a = api.get
+      binding.pry
+      render json: a
     end
   end
 

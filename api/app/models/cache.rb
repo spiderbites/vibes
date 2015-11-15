@@ -1,0 +1,2 @@
+class Cache < Statistics
+end

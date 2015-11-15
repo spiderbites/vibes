@@ -52,7 +52,7 @@ class WatsonTwitterInsightsParser
         current_url: @query,
         next_url: @unrefined_data['related']['next']['href'].split('?q=')[1],
         total: @unrefined_data['search']['results'].to_i,
-        from: @unrefined_data['related']['next']['href'].split('&')
+        next_from: @unrefined_data['related']['next']['href'].split('&')
                 .select { |href_portion| href_portion.include?('from=') }[0]
                 .split('=')[1]
                 .to_i
