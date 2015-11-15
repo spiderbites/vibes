@@ -1,6 +1,6 @@
 class Statistics < ActiveRecord::Base
   self.abstract_class = true
-  def self.statistics(unit)
+  def self.statistics(config)
     @ordered = self.order(:time)
     if @ordered.count == 0
       empty_db_result
@@ -8,9 +8,9 @@ class Statistics < ActiveRecord::Base
       @times = @ordered.map { |e| e.time }.uniq
       @time = {
         :from => @times.first.to_time,
-        :until => @times.last.to_time + (unit[:quantity]).minutes
+        :until => @times.last.to_time + (config.quantity).minutes
       }
-      intervals = divide_in_intervals(unit)
+      intervals = divide_in_intervals(config)
       calculate(intervals)
     end
   end
@@ -110,17 +110,17 @@ class Statistics < ActiveRecord::Base
 
 
 
-    def self.divide_in_intervals(unit)
-      case unit[:type]
+    def self.divide_in_intervals(config)
+      case config.unit
       when :by_minutes
-        create_intervals_by_minutes(unit)
+        create_intervals_by_minutes(config)
       else
         @ordered
       end
     end
 
-    def self.create_intervals_by_minutes(unit)
-      timings = (@time[:from].to_i..@time[:until].to_i).step((unit[:quantity]).minutes).map{ |t| Time.at(t).utc.iso8601 }
+    def self.create_intervals_by_minutes(config)
+      timings = (@time[:from].to_i..@time[:until].to_i).step((config.quantity).minutes).map{ |t| Time.at(t).utc.iso8601 }
       result = timings.zip timings[1..-1]
       result[1..-2]
     end

@@ -33,12 +33,11 @@ class LocationParser
 end
 
 class StatsParser
-  UNITS = ['by_minutes', 'by_hours', 'by_days']
   attr_reader :unit, :quantity
 
   def initialize(parameters)
     @stats = parameters.stats rescue nil
-    @unit = (@stats && @stats.split(':')[0]) || 'by_minutes'
+    @unit = (@stats && @stats.split(':')[0].to_sym) || :by_minutes
     @quantity = (@stats && @stats.split(':')[1].to_i) || 6
   end
 

@@ -11,10 +11,11 @@ class VibesController < ApplicationController
     if q_parser.errors?
       render json: handle_jsonp({ errors: q_parser.errors, params: params })
     else
+      ActiveRecord::Base.connection.execute("TRUNCATE Caches")
       api = WatsonTwitterInsightsApi.new(q_parser.query)
       a = api.get
-      binding.pry
-      render json: a
+      Cache.create a[:data]
+      render json: (Cache.statistics q_parser.stats)
     end
   end
 
