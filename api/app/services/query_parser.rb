@@ -1,5 +1,4 @@
 class LocationParser
-
   attr_reader :location
 
   def initialize(parameters)
@@ -26,6 +25,7 @@ class StatsParser
   def errors
     nil
   end
+
 end
 
 class TimeParser
@@ -33,23 +33,24 @@ class TimeParser
   attr_reader :time_format, :unit, :quantity
 
   def initialize(parameters)
-    @unit = obtain_time_unit(parameters) || :hours
+    @parameters = parameters
+    @unit = obtain_time_unit || :hours
     @since = nil
-    @quantity = parameters.send(@unit).to_i rescue 3
-    @time_format = time_stamp(parameters, @since)
+    @quantity = @parameters.send(@unit).to_i rescue 3
+    @time_format = time_stamp(@since)
   end
 
   def errors
-    nil
+    (@parameters.public_methods & TIMES).length > 1 ? "At most one time parameters allowed." : nil
   end
 
   private
-    def obtain_time_unit(parameters)
-      (parameters.public_methods & TIMES)[0]
+    def obtain_time_unit
+      (@parameters.public_methods & TIMES)[0]
     end
 
-    def time_stamp(parameters, since)
-      invoke(convert_time_to_method(parameters), since)
+    def time_stamp(since)
+      invoke(convert_time_to_method, since)
     end
 
     def invoke(time_method, since)
@@ -60,8 +61,7 @@ class TimeParser
       end
     end
 
-    def convert_time_to_method(parameters)
-      time = obtain_time_unit(parameters)
+    def convert_time_to_method
       {
         method: ('past_' + @unit.to_s).to_sym,
         arg: @quantity
@@ -73,11 +73,11 @@ class TermParser
   attr_reader :contents
 
   def initialize(parameters)
-    @contents = parameters
+    @contents = parameters.q
   end
 
   def errors
-    nil
+    @contents.empty? ? "No search term is provided" : nil
   end
 end
 
@@ -113,7 +113,7 @@ class QueryParser
     @stats = StatsParser.new(@parameters)
     @location = LocationParser.new(@parameters)
 
-    @@parsers = [@parameters]
+    @@parsers = [@parameters, @term, @time, @stats, @location]
   end
 
   def errors?
