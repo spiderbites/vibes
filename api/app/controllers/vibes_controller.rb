@@ -5,14 +5,28 @@ class VibesController < ApplicationController
   protect_from_forgery
   after_filter :cors_set_access_control_headers
 
-  def test
+  def immediate
     q_parser = QueryParser.new(check_params)
     if q_parser.errors?
       render json: handle_jsonp({ errors: q_parser.errors, params: params })
     else
       api = WatsonTwitterInsightsApi.new(q_parser.query)
-      assembler = JsonAssembler.new(api, q_parser.stats)
+      assembler = JsonAssembler.new(api, q_parser)
       render json: assembler.json
+    end
+  end
+
+  def gradual
+    q_parser = QueryParser.new(check_params)
+    render json: q_parser
+  end
+
+  def cached
+    q_parser = QueryParser.new(check_params)
+    if q_parser.errors?
+      render json: handle_jsonp({ errors: q_parser.errors, params: params })
+    else
+     render json: Tweet.statistics(q_parser)
     end
   end
 

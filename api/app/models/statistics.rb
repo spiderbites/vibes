@@ -5,13 +5,13 @@ class Statistics < ActiveRecord::Base
     if @ordered.count == 0
       empty_db_result
     else
-      @times = @ordered.map { |e| e.time }.uniq
+      # @times = @ordered.map { |e| e.time }.uniq
       @time = {
-        :from => @times.first.to_time,
-        :until => @times.last.to_time + (config.quantity).minutes
+        :from => config.time.time_format[:from].to_time,
+        :until => config.time.time_format[:until].to_time + (config.stats.quantity).minutes
       }
-      intervals = divide_in_intervals(config)
-      calculate(intervals, config)
+      intervals = divide_in_intervals(config.stats)
+      calculate(intervals, config.stats)
     end
   end
 
@@ -133,7 +133,7 @@ class Statistics < ActiveRecord::Base
         a
       end
       result[:timings] = intervals.map { |e| e[0].split('T')[1] }
-      result[:tweets] = @ordered
+      result[:tweets] = [] #@ordered
       result
     end
 
