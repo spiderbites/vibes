@@ -10,6 +10,9 @@ class LocationParser
     nil
   end
 
+  def to_s
+    @location.empty? ? "" : "bio_location:#{location}"
+  end
 end
 
 class StatsParser
@@ -26,6 +29,9 @@ class StatsParser
     nil
   end
 
+  def to_s
+    ""
+  end
 end
 
 class TimeParser
@@ -41,7 +47,11 @@ class TimeParser
   end
 
   def errors
-    (@parameters.public_methods & TIMES).length > 1 ? "At most one time parameters allowed." : nil
+    (@parameters.public_methods & TIMES).length > 1 ? "At most one time parameter allowed." : nil
+  end
+
+  def to_s
+    "posted:#{@time_format[:from]},#{@time_format[:until]}"
   end
 
   private
@@ -73,11 +83,15 @@ class TermParser
   attr_reader :contents
 
   def initialize(parameters)
-    @contents = parameters.q
+    @contents = parameters.q.to_s
   end
 
   def errors
-    @contents.empty? ? "No search term is provided" : nil
+    @contents.empty? ? "No search term provided" : nil
+  end
+
+  def to_s
+    @contents.empty? ? "" : "q=#{@contents}"
   end
 end
 
@@ -101,10 +115,14 @@ class ParametersParser
   def errors
     errors? ? "Unable to search as the term-holder `q=` is missing." : nil
   end
+
+  def to_s
+    ""
+  end
 end
 
 class QueryParser
-  attr_reader :term, :time, :stats, :location
+  attr_reader :term, :time, :stats, :location, :query
 
   def initialize(parameters)
     @parameters = ParametersParser.new(parameters)
@@ -114,6 +132,7 @@ class QueryParser
     @location = LocationParser.new(@parameters)
 
     @@parsers = [@parameters, @term, @time, @stats, @location]
+    @query = URI.encode(@@parsers.map(&:to_s).select(&:presence).join(' '))
   end
 
   def errors?

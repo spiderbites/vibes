@@ -8,7 +8,7 @@ class VibesController < ApplicationController
 
   def test
     q_parser = QueryParser.new(check_params)
-    render json: q_parser.errors
+    render json: q_parser.query
   end
 
   def quick_search
