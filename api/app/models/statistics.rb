@@ -5,9 +5,12 @@ class Statistics < ActiveRecord::Base
       empty_db_result
     else
       # @times = @ordered.map { |e| e.time }.uniq
+      step_unit = config.stats.unit.to_s.sub('by_','').to_sym
+      @in_steps_of = (config.stats.quantity).send(step_unit)
+
       @time = {
         :from => config.time.time_format[:from].to_time,
-        :until => config.time.time_format[:until].to_time + (config.stats.quantity).minutes
+        :until => config.time.time_format[:until].to_time + @in_steps_of
       }
       _from = @time[:from].utc.iso8601.sub('Z', '.000Z')
       _until = @time[:until].utc.iso8601.sub('Z', '.000Z')
@@ -113,16 +116,8 @@ class Statistics < ActiveRecord::Base
 
 
     def self.divide_in_intervals(config)
-      case config.unit
-      when :by_minutes
-        create_intervals_by_minutes(config)
-      else
-        @ordered
-      end
-    end
-
-    def self.create_intervals_by_minutes(stats_config)
-      timings = (@time[:from].to_i..@time[:until].to_i).step((stats_config.quantity).minutes).map{ |t| Time.at(t).utc.iso8601 }
+      range = (@time[:from].to_i..@time[:until].to_i)
+      timings = range.step(@in_steps_of).map{ |t| Time.at(t).utc.iso8601 }
       result = timings.zip timings[1..-1]
       result[1..-2]
     end
