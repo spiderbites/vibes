@@ -20,6 +20,8 @@ var TweetList = React.createClass({
           <Tweet tweet={tweet} />
           );
       });
+    } else {
+      var tweetNodes = <div className="no-tweet"><p>Move along, nothing to see here...</p></div>
     }
 
     return (
