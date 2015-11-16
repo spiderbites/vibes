@@ -2,52 +2,66 @@ class Statistics < ActiveRecord::Base
   self.abstract_class = true
 
   def self.statistics_improved(config)
-    db = self.name.downcase + 's'
+    @db = self.name.downcase + 's'
     sql = {
       :aggregate => "
           SELECT
               date_trunc('minute', time) - (CAST(EXTRACT(MINUTE FROM time) AS integer) % 10) * interval '1 minute' AS intervals,
               sentiment,
               count(*)
-          FROM #{db}
+          FROM #{@db}
           GROUP BY sentiment, intervals
           ORDER BY sentiment, intervals;
         ",
-      :min => "SELECT date_trunc('minute', min) - (CAST(EXTRACT(MINUTE from min) AS integer) % 10) * interval '1 minute' as intervals from (SELECT min(time) from #{db}) as m;",
-      :max => "SELECT date_trunc('minute', max) - (CAST(EXTRACT(MINUTE from max) AS integer) % 10) * interval '1 minute' as intervals from (SELECT max(time) from #{db}) as m;"
+      :min => "SELECT date_trunc('minute', min) - (CAST(EXTRACT(MINUTE from min) AS integer) % 10) * interval '1 minute' as intervals from (SELECT min(time) from #{@db}) as m;",
+      :max => "SELECT date_trunc('minute', max) - (CAST(EXTRACT(MINUTE from max) AS integer) % 10) * interval '1 minute' as intervals from (SELECT max(time) from #{@db}) as m;"
     }
 
     min = ActiveRecord::Base.connection.execute(sql[:min]).to_a[0]["intervals"]
     max = ActiveRecord::Base.connection.execute(sql[:max]).to_a[0]["intervals"]
     records = ActiveRecord::Base.connection.execute(sql[:aggregate])
 
-    step_unit = :minutes
-    @in_steps_of = (10).send(step_unit)
+    step_unit = config.stats.unit.to_s.sub('by_','').to_sym
+    @in_steps_of = (config.stats.quantity).send(step_unit)
+    if min && max
+      @time = {
+        :from => min.to_time,
+        :until => max.to_time
+      }
+      assemble_results(config)
+    else
+      empty_db_result
+    end
+  end
 
-    @time = {
-      :from => min.to_time,
-      :until => max.to_time
-    }
-
-    if (db == 'caches')
+  def self.assemble_results(config)
+    if (@db == 'caches')
       tweets = self.all
     else
-      tweets = self.where("url LIKE '%#{config.term.contents}%' and time <= '#{max}' and time >= '#{min}'")
+      term = config.term.contents
+      sql = "url LIKE '%#{term}%' and time <= '#{max}' and time >= '#{min}'"
+      tweets = self.where(sql)
     end
 
     range = (@time[:from].to_i..@time[:until].to_i)
-    timings = range.step(@in_steps_of).map{ |t| Time.at(t).strftime('%Y-%m-%d %H:%M:%S') }
+    timings = range.step(@in_steps_of).map do |t|
+      Time.at(t).strftime('%Y-%m-%d %H:%M:%S')
+    end
     # results = records.to_a.reduce({:negative => [], :positive => [], :neutral => []}) {|a,e| a[e["sentiment"].to_sym] << [e["intervals"], e["count"]]; a }
 
     zeros = Array.new(timings.length, 0)
 
-    hash = {
+    acc = {
       :negative => Hash[timings.zip zeros],
       :positive => Hash[timings.zip zeros],
       :neutral => Hash[timings.zip zeros]
     }
 
-    results = records.reduce(hash) {|a,e| a[e["sentiment"].to_sym][e["intervals"]] = e["count"].to_i; a}
+    results = records.reduce(acc) do |a, e|
+      a[e["sentiment"].to_sym][e["intervals"]] = e["count"].to_i
+      a
+    end
+
     {
       :timings => timings,
       :negative => results[:negative].values,
