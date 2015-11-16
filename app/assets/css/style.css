@@ -34,7 +34,7 @@ body {
   height: 100%;
   width: 100%;
   display: inline-block;
-  transition: all 1s ease;
+  transition: all .2s ease;
 }
 
 .side-pane {
@@ -47,13 +47,18 @@ body {
   border: 1px solid rgba(0,0,0,0.6);
   border-radius: 4px 0 0 4px;
   text-shadow: 1px 1px 1px rgba(0,0,0,0.3);*/
-  transition: all 1s ease;
+  transition: all .2s ease;
 }
 
 .tweets {
-  overflow: scroll;
+  overflow: auto;
   height: 100%;
   font-family: Helvetica, sans-serif;
+  /*background: linear-gradient(#484e55, #3a3f44 60%, #313539);*/
+  background: #484e55;
+  border-left: 1px solid rgba(0,0,0,0.6);
+  border-top: 1px solid rgba(0,0,0,0.6);
+  /*-webkit-backface-visibility: hidden;*/
 }
 
 .side-pane .clicktab {
@@ -61,11 +66,13 @@ body {
   left: -46px;
   height: 46px;
   width: 46px;
-  background: linear-gradient(#484e55, #3a3f44 60%, #313539);
+  /*background: linear-gradient(#484e55, #3a3f44 60%, #313539);*/
+  background: #484e55;
   border-top: 1px solid rgba(0,0,0,0.6);
   border-left: 1px solid rgba(0,0,0,0.6);
   border-bottom: 1px solid rgba(0,0,0,0.6);
   border-radius: 4px 0 0 4px;
+  /*-webkit-backface-visibility: hidden;*/
 }
 
 i.fa.fa-twitter {
@@ -87,7 +94,8 @@ div.tweet:nth-child(1) {
   margin: 20px auto;
   width: 80%;
   text-align: center;
-  background: linear-gradient(#484e55, #3a3f44 60%, #313539);
+  background: #484e55;
+  /*background: linear-gradient(#484e55, #3a3f44 60%, #313539);*/
   border: 1px solid rgba(0,0,0,0.6);
   border-radius: 4px;
 }

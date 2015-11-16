@@ -14,6 +14,7 @@ var SidePane = React.createClass({
 
 var TweetList = React.createClass({
 
+  // Comparison function used to order tweets by time posted
   timeCompare: function(tweeta, tweetb) {
     return Date.parse(tweeta.time) - Date.parse(tweetb.time)
   },
