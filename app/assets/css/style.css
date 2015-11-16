@@ -50,7 +50,8 @@ body {
 }
 
 .tweets {
-  overflow: auto;
+  overflow-y: scroll;
+  overflow-x: hidden;
   height: 100%;
   font-family: Helvetica, sans-serif;
   /*background: linear-gradient(#484e55, #3a3f44 60%, #313539);*/
