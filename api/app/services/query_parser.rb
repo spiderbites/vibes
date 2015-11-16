@@ -139,6 +139,7 @@ end
 
 class QueryParser
   attr_reader :term, :time, :stats, :location, :query
+  attr_accessor :route
 
   def initialize(parameters)
     @parameters = ParametersParser.new(parameters)
@@ -151,6 +152,7 @@ class QueryParser
 
     @@parsers = [@parameters, @term, @time, @stats, @location, @pagination]
     @query = construct_query
+    @route = ""
   end
 
   def errors?

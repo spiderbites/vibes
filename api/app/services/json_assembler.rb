@@ -1,18 +1,35 @@
 class JsonAssembler
   attr_reader :json
-  def initialize(api, stats_config)
-    @data = api.get
-    @stats_config = stats_config
+  def initialize(data, config)
+    @data = data
+    @config = config
     @json = {}
-    @json[:meta_data] = @data[:meta_data]
+    generate_meta_data
     assemble
   end
 
   private
+    def generate_meta_data
+      if @data[:meta_data]
+        @json[:meta_data] = @data[:meta_data]
+      else
+        @json[:meta_data] = {
+          current_url: @config.query,
+          next_url: nil,
+          total: nil, # Tweet.count_them @config
+          next_from: nil
+        }
+      end
+    end
+
     def assemble
-      ActiveRecord::Base.connection.execute("TRUNCATE Caches")
-      Cache.create @data[:data]
-      data = Cache.statistics @stats_config
+      if @config.route == :immediate
+        ActiveRecord::Base.connection.execute("TRUNCATE Caches")
+        Cache.create @data[:data]
+        data = Cache.statistics @config
+      else
+        data = Tweet.statistics @config
+      end
 
       @json[:data] = data
       @json[:data][:map] = data[:tweets].map do |tweet|
