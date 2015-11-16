@@ -1,8 +1,7 @@
 class Statistics < ActiveRecord::Base
   self.abstract_class = true
   def self.statistics(config)
-    @ordered = self.order(:time)
-    if @ordered.count == 0
+    if self.count == 0
       empty_db_result
     else
       # @times = @ordered.map { |e| e.time }.uniq
@@ -10,6 +9,9 @@ class Statistics < ActiveRecord::Base
         :from => config.time.time_format[:from].to_time,
         :until => config.time.time_format[:until].to_time + (config.stats.quantity).minutes
       }
+      _from = @time[:from].utc.iso8601.sub('Z', '.000Z')
+      _until = @time[:until].utc.iso8601.sub('Z', '.000Z')
+      @ordered = self.where("url LIKE '%#{config.term.contents}%' and time <= '#{_until}' and time >= '#{_from}'").order(:time)
       intervals = divide_in_intervals(config.stats)
       calculate(intervals, config.stats)
     end
@@ -119,30 +121,31 @@ class Statistics < ActiveRecord::Base
       end
     end
 
-    def self.create_intervals_by_minutes(config)
-      timings = (@time[:from].to_i..@time[:until].to_i).step((config.quantity).minutes).map{ |t| Time.at(t).utc.iso8601 }
+    def self.create_intervals_by_minutes(stats_config)
+      timings = (@time[:from].to_i..@time[:until].to_i).step((stats_config.quantity).minutes).map{ |t| Time.at(t).utc.iso8601 }
       result = timings.zip timings[1..-1]
       result[1..-2]
     end
 
-    def self.calculate(intervals, config)
+    def self.calculate(intervals, stats_config)
       result = ['positive', 'negative', 'neutral'].reduce({}) do |a, e|
-        a[e] = intervals.map do |e|
-          @ordered.where("time < '#{e[1]}' and time >= '#{e[0]}' and sentiment='positive'")
+        a[e] = intervals.map do |interval|
+          @ordered.where("time < '#{interval[1]}' and time >= '#{interval[0]}' and sentiment='#{e}'")
         end.map {|e| e.count}
         a
       end
-      result[:timings] = intervals.map { |e| e[0].split('T')[1] }
-      result[:tweets] = [] #@ordered
+      result[:timings] = calculate_timings(intervals, stats_config)
+      result[:tweets] = @ordered.first(750)
       result
     end
 
-    def self.calculate_timings(intervals, config)
+    def self.calculate_timings(intervals, stats_config)
       prev_day = ""
       intervals.map do |interval|
         current_day, current_time = interval[0].split('T')
-        if [:by_minutes, :by_hours].include?(config.unit)
+        if [:by_minutes, :by_hours].include?(stats_config.unit)
           if prev_day != current_day
+            prev_day = current_day
             interval[0]
           else
             current_time
