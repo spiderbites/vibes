@@ -61,23 +61,55 @@ body {
   /*-webkit-backface-visibility: hidden;*/
 }
 
-.side-pane .clicktab {
+
+.tabs * {
+  box-sizing: border-box;
   position: absolute;
+  background: #484e55;
+  border-radius: 4px 0 0 4px;
+  cursor: pointer;
+}
+
+.side-pane .clicktab {
   left: -46px;
   height: 46px;
   width: 46px;
-  /*background: linear-gradient(#484e55, #3a3f44 60%, #313539);*/
-  background: #484e55;
-  border-top: 1px solid rgba(0,0,0,0.6);
-  border-left: 1px solid rgba(0,0,0,0.6);
-  border-bottom: 1px solid rgba(0,0,0,0.6);
-  border-radius: 4px 0 0 4px;
-  /*-webkit-backface-visibility: hidden;*/
+}
+
+.side-pane .sentiment-filter-pos {
+  left: -24px;
+  top: 47px;
+  height: 24px;
+  width: 24px;
+}
+
+.side-pane .sentiment-filter-neg {
+  left: -24px;
+  top: 76px;
+  height: 24px;
+  width: 24px;
+}
+
+.side-pane .active {
 }
 
 i.fa.fa-twitter {
   font-size: 36px;
   padding: 5px;
+}
+
+i.fa.fa-minus-circle {
+  font-size: 24px;
+  padding: 2px;
+}
+
+i.fa.fa-plus-circle {
+  font-size: 24px;
+  padding: 2px;
+}
+
+i.fa.active {
+  color:black;
 }
 
 div.tweet:nth-child(1) {

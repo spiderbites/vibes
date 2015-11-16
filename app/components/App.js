@@ -9,7 +9,7 @@ var App = React.createClass({
   // API_URL: "http://localhost:3030/api/tweets",
 
   getInitialState: function() {
-    return { sideshow: '', mapData: {new: [], old: []}, tweetData: [], q: "", done: true};
+    return { sideshow: '', mapData: {new: [], old: []}, tweetData: [], tweetsToShow: [], q: "", done: true, posActive: "", negActive: ""};
   },
 
   handleQuerySubmit: function(params) {
@@ -71,6 +71,7 @@ var App = React.createClass({
       this.setState({
         mapData: {new: data.map, old: (this.state.mapData.new).concat(this.state.mapData.old)},
         tweetData: (this.state.tweetData).concat(data.tweets),
+        tweetsToShow: (this.state.tweetData).concat(data.tweets),
 
         // definitely have to do some work here to merge old and new chart data
         // this will hopefully produce some actually meaningful charts
@@ -83,10 +84,43 @@ var App = React.createClass({
       this.setState({
         mapData: {new: data.map, old: []},
         tweetData: data.tweets,
+        tweetsToShow: data.tweets,
         chartData: {stats: data.stats, time_labels: data.time_labels},
         q: q
       });
     }
+  },
+
+  filterTweets: function(sentiment) {
+    
+    // ughhh this
+    if (sentiment === "positive")
+      this.setState({posActive: (this.state.posActive === '' ? 'active' : ''), negActive: ''});
+    else if (sentiment === "negative")
+      this.setState({negActive: (this.state.negActive === '' ? 'active' : ''), posActive: ''});
+    else // (sentiment === null)
+      this.setState({negActive: '', posActive: ''})
+
+    if (this.state.tweetData.length !== 0) {
+      if (sentiment === null) // show all tweets
+        this.setState({tweetsToShow: this.state.tweetData});
+      else {
+        var filteredTweets = this.state.tweetData.filter(function(e) {return e.sentiment === sentiment});
+        this.setState({tweetsToShow: filteredTweets})
+      }
+    }
+  },
+
+  handleSideshow: function() {
+    this.setState({sideshow: this.state.sideshow === '' ? 'sideshow' : ''}, function() {
+      var count = 0;
+
+      var interval = setInterval(function() {
+        window.dispatchEvent(new Event('resize'));
+        count++;
+        if (count == 10) { clearInterval(interval); }
+      }, 100);
+    });
   },
 
   render: function() {
@@ -99,24 +133,16 @@ var App = React.createClass({
                      currentQuery={this.state.q}
                      done={this.state.done} />
 
-        <SidePane className={this.state.sideshow} 
+        <SidePane className={this.state.sideshow}
+                  filterTweets={this.filterTweets}
                   clicktabClick={this.handleSideshow} 
-                  tweetData={this.state.tweetData}/>
+                  tweetData={this.state.tweetsToShow}
+                  posActive={this.state.posActive}
+                  negActive={this.state.negActive}/>
       </div>
     )
-  },
-  
-  handleSideshow: function() {
-    this.setState({sideshow: this.state.sideshow === '' ? 'sideshow' : ''}, function() {
-      var count = 0;
+  }  
 
-      var interval = setInterval(function() {
-        window.dispatchEvent(new Event('resize'));
-        count++;
-        if (count == 10) { clearInterval(interval); }
-      }, 100);
-    });
-  }
 });
 
 module.exports = App;
