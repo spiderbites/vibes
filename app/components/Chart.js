@@ -71,7 +71,6 @@ var Chart = React.createClass({
         <div className="canvas-holder">
           <RChartJS.Line data={this.state.data} options={this.props.options} ref="lineChart" redraw />
         </div>
-        <div className="chart-legend" dangerouslySetInnerHTML={{ __html: legend }} />
       </div>
     );
   },

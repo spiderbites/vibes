@@ -4,7 +4,13 @@ var Footer = React.createClass({
   render: function() {
     return (
       <div className={"footer"}>
-        <input type="range"/>
+        <div className="legend">
+          <ul>
+            <li className="neutral"><div></div> Neutral Sentiments</li>
+            <li className="negative"><div></div> Negative Sentiments</li>
+            <li className="positive"><div></div> Positive Sentiments</li>
+          </ul>
+        </div>
       </div>
     )
   }
