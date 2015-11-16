@@ -37,6 +37,18 @@ body {
   transition: all .2s ease;
 }
 
+.vibes-logo {
+  position: absolute;
+  display: inline-block;
+  margin: 20px;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  font-size: 36pt;
+  line-height: 36pt;
+  font-weight: bold;
+}
+
 .side-pane {
   position: absolute;
   right: -25%;
@@ -66,27 +78,21 @@ body {
   cursor: pointer;
 }
 
-.tabs > * {
-  border-right: 1px solid #333337;
-}
-
 .tabs > *:hover {
   color: #f2f2f2;
 }
 
-
-
 .side-pane .clicktab {
   position: absolute;
-  left: -46px;
-  height: 46px;
-  width: 46px;
+  left: -48px;
+  height: 48px;
+  width: 48px;
 }
 
 .side-pane .sentiment-filter-pos {
   position: absolute;
   left: -25px;
-  top: 47px;
+  top: 49px;
   height: 24px;
   width: 24px;
 }
@@ -94,7 +100,7 @@ body {
 .side-pane .sentiment-filter-neg {
   position: absolute;
   left: -25px;
-  top: 76px;
+  top: 78px;
   height: 24px;
   width: 24px;
 }
@@ -104,7 +110,7 @@ body {
 
 i.fa.fa-twitter {
   font-size: 36px;
-  padding: 5px;
+  padding: 6px;
 }
 
 i.fa.fa-minus-circle {
