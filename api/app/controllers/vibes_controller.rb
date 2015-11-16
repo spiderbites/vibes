@@ -10,7 +10,6 @@ class VibesController < ApplicationController
     if q_parser.errors?
       render json: handle_jsonp({ errors: q_parser.errors, params: params })
     else
-      q_parser.route = :immediate
       api = WatsonTwitterInsightsApi.new(q_parser.query)
       assembler = JsonAssembler.new(api.get, q_parser)
       render json: assembler.json
@@ -18,9 +17,8 @@ class VibesController < ApplicationController
   end
 
   def gradual
-    q_parser.route = :gradual
     q_parser = QueryParser.new(check_params)
-    render json: q_parser
+    render json: q_parser.route
   end
 
   def cached
@@ -28,9 +26,7 @@ class VibesController < ApplicationController
     if q_parser.errors?
       render json: handle_jsonp({ errors: q_parser.errors, params: params })
     else
-      q_parser.route = :cached
-      result = Tweet.statistics(q_parser)
-      assembler = JsonAssembler.new(result, q_parser)
+      assembler = JsonAssembler.new({}, q_parser)
       render json: assembler.json
     end
   end
@@ -79,7 +75,8 @@ class VibesController < ApplicationController
     def check_params
       params.permit(:q, :range,
                     :seconds, :minutes, :hours, :days, :weeks, :months, :years,
-                    :location, :stats, :since, :from)
+                    :location, :stats, :since, :from,
+                    :action)
     end
 
     def handle_jsonp(data)

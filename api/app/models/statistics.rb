@@ -1,5 +1,62 @@
 class Statistics < ActiveRecord::Base
   self.abstract_class = true
+
+  def self.statistics_improved(config)
+    db = self.name.downcase + 's'
+    sql = {
+      :aggregate => "
+          SELECT
+              date_trunc('minute', time) - (CAST(EXTRACT(MINUTE FROM time) AS integer) % 10) * interval '1 minute' AS intervals,
+              sentiment,
+              count(*)
+          FROM #{db}
+          GROUP BY sentiment, intervals
+          ORDER BY sentiment, intervals;
+        ",
+      :min => "SELECT date_trunc('minute', min) - (CAST(EXTRACT(MINUTE from min) AS integer) % 10) * interval '1 minute' as intervals from (SELECT min(time) from #{db}) as m;",
+      :max => "SELECT date_trunc('minute', max) - (CAST(EXTRACT(MINUTE from max) AS integer) % 10) * interval '1 minute' as intervals from (SELECT max(time) from #{db}) as m;"
+    }
+
+    min = ActiveRecord::Base.connection.execute(sql[:min]).to_a[0]["intervals"]
+    max = ActiveRecord::Base.connection.execute(sql[:max]).to_a[0]["intervals"]
+    records = ActiveRecord::Base.connection.execute(sql[:aggregate])
+
+    step_unit = :minutes
+    @in_steps_of = (10).send(step_unit)
+
+    @time = {
+      :from => min.to_time,
+      :until => max.to_time
+    }
+
+    if (db == 'caches')
+      tweets = self.all
+    else
+      tweets = self.where("url LIKE '%#{config.term.contents}%' and time <= '#{max}' and time >= '#{min}'")
+    end
+
+    range = (@time[:from].to_i..@time[:until].to_i)
+    timings = range.step(@in_steps_of).map{ |t| Time.at(t).strftime('%Y-%m-%d %H:%M:%S') }
+    # results = records.to_a.reduce({:negative => [], :positive => [], :neutral => []}) {|a,e| a[e["sentiment"].to_sym] << [e["intervals"], e["count"]]; a }
+
+    zeros = Array.new(timings.length, 0)
+
+    hash = {
+      :negative => Hash[timings.zip zeros],
+      :positive => Hash[timings.zip zeros],
+      :neutral => Hash[timings.zip zeros]
+    }
+
+    results = records.reduce(hash) {|a,e| a[e["sentiment"].to_sym][e["intervals"]] = e["count"].to_i; a}
+    {
+      :timings => timings,
+      :negative => results[:negative].values,
+      :positive => results[:positive].values,
+      :neutral => results[:neutral].values,
+      :tweets => tweets
+    }
+  end
+
   def self.statistics(config)
     if self.count == 0
       empty_db_result
@@ -15,7 +72,7 @@ class Statistics < ActiveRecord::Base
       _from = @time[:from].utc.iso8601.sub('Z', '.000Z')
       _until = @time[:until].utc.iso8601.sub('Z', '.000Z')
       @ordered = self.where("url LIKE '%#{config.term.contents}%' and time <= '#{_until}' and time >= '#{_from}'").order(:time)
-      intervals = divide_in_intervals(config.stats)
+      intervals = divide_in_intervals
       calculate(intervals, config.stats)
     end
   end
@@ -115,9 +172,9 @@ class Statistics < ActiveRecord::Base
 
 
 
-    def self.divide_in_intervals(config)
+    def self.divide_in_intervals
       range = (@time[:from].to_i..@time[:until].to_i)
-      timings = range.step(@in_steps_of).map{ |t| Time.at(t).utc.iso8601 }
+      timings = range.step(@in_steps_of).map{ |t| Time.at(t) }
       result = timings.zip timings[1..-1]
       result[1..-2]
     end

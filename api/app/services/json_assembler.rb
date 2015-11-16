@@ -1,3 +1,4 @@
+require 'JSON'
 class JsonAssembler
   attr_reader :json
   def initialize(data, config)
@@ -26,15 +27,15 @@ class JsonAssembler
       if @config.route == :immediate
         ActiveRecord::Base.connection.execute("TRUNCATE Caches")
         Cache.create @data[:data]
-        data = Cache.statistics @config
+        data = Cache.statistics_improved @config
       else
-        data = Tweet.statistics @config
+        data = Tweet.statistics_improved @config
       end
 
       @json[:data] = data
-      @json[:data][:map] = data[:tweets].map do |tweet|
+      @json[:data][:map] = data[:tweets].select {|tweet| tweet[:geo]}.map do |tweet|
         {
-          :geo => tweet[:geo],
+          :geo => JSON.parse(tweet[:geo]),
           :sentiment => tweet[:sentiment]
         }
       end
