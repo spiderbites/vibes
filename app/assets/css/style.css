@@ -44,8 +44,7 @@ body {
   width: 25%;
   display: inline-block;
   background: linear-gradient(#484e55, #3a3f44 60%, #313539);
-  border-radius: 4px 0 0 4px;
-  text-shadow: 1px 1px 1px rgba(0,0,0,0.3);*/
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
   transition: all .2s ease;
 }
 
