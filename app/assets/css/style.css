@@ -104,10 +104,6 @@ div.tweet:nth-child(1) {
   height: 75px;
 }
 
-ul.line-legend {
-  list-style: none;
-}
-
 .navbar ul {
   width: 100%;
   list-style: none;

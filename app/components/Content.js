@@ -2,16 +2,6 @@ var React = require('react');
 var Map = require('./Map');
 var Chart = require('./Chart');
 
-// DUMMY DATA SET NOT BASED ON ANYTHING!!
-
-function rand(min, max, num) {
-  var rtn = [];
-  while (rtn.length < num) {
-    rtn.push(Math.floor((Math.random() * (max - min)) + min));
-  }
-  return rtn;
-}
-
 var Content = React.createClass({
   getInitialState: function() {
     return {
@@ -25,7 +15,6 @@ var Content = React.createClass({
     return {
       chartOptions: {
           multiTooltipTemplate: "<%= datasetLabel %> - <%= value %>",
-          legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].fillColor%>\"><%if(datasets[i].label){%><%=datasets[i].label%><%}%></span></li><%}%></ul>",
           animationSteps: 15,
           responsive: true,
           maintainAspectRatio: false

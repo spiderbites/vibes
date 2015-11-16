@@ -6,10 +6,6 @@ var $ = require("jquery");
 var Chart = React.createClass({
 
   componentDidMount: function(){
-    // var legend = this.refs.lineChart.state.chart.generateLegend();
-    // this.setState({
-    //   legend: legend
-    // });
   },
 
   formatLabelHour: function(label) {
@@ -81,11 +77,6 @@ var Chart = React.createClass({
   },
 
   render: function(){
-    // var legend = this.state && this.state.legend || '';
-
-    // this line was in the return statement previously
-    // <div className="chart-legend" dangerouslySetInnerHTML={{ __html: legend }} />
-
     return (
       <div className={"chart " + this.props.className}>
         <div className="canvas-holder">
