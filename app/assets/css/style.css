@@ -44,7 +44,6 @@ body {
   width: 25%;
   display: inline-block;
   background: linear-gradient(#484e55, #3a3f44 60%, #313539);
-  border-left: 1px solid rgba(0,0,0,0.6);
   border-radius: 4px 0 0 4px;
   text-shadow: 1px 1px 1px rgba(0,0,0,0.3);*/
   transition: all .2s ease;
@@ -56,8 +55,6 @@ body {
   font-family: Helvetica, sans-serif;
   /*background: linear-gradient(#484e55, #3a3f44 60%, #313539);*/
   background: #484e55;
-  border-left: 1px solid rgba(0,0,0,0.6);
-  border-top: 1px solid rgba(0,0,0,0.6);
   /*-webkit-backface-visibility: hidden;*/
 }
 
@@ -65,11 +62,15 @@ body {
 .tabs * {
   box-sizing: border-box;
   position: absolute;
-<<<<<<< HEAD
   background: #484e55;
   border-radius: 4px 0 0 4px;
   cursor: pointer;
 }
+
+.tabs > * {
+  border-right: 1px solid #333337;
+}
+
 
 .side-pane .clicktab {
   left: -46px;
@@ -78,14 +79,14 @@ body {
 }
 
 .side-pane .sentiment-filter-pos {
-  left: -24px;
+  left: -25px;
   top: 47px;
   height: 24px;
   width: 24px;
 }
 
 .side-pane .sentiment-filter-neg {
-  left: -24px;
+  left: -25px;
   top: 76px;
   height: 24px;
   width: 24px;
@@ -134,6 +135,42 @@ div.tweet:nth-child(1) {
 
 .header, .navbar {
   height: 75px;
+}
+
+.footer {
+  height: 85px;
+}
+
+.legend {
+  width: 50%;
+}
+
+.legend ul {
+  display: inline-block;
+  list-style: none;
+  text-align: left;
+}
+
+.legend li {
+  font-size: 15pt;
+}
+
+.legend li div {
+  display: inline-block;
+  height: 15px;
+  width: 15px;
+}
+
+.legend .neutral div {
+  background-color: rgba(220,220,220,1);
+}
+
+.legend .negative div {
+  background-color: rgba(255,51,51,1);
+}
+
+.legend .positive div {
+  background-color: rgba(0,204,102,1);
 }
 
 .navbar ul {
