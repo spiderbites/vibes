@@ -26,6 +26,9 @@ var Content = React.createClass({
       chartOptions: {
           multiTooltipTemplate: "<%= datasetLabel %> - <%= value %>",
           legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].fillColor%>\"><%if(datasets[i].label){%><%=datasets[i].label%><%}%></span></li><%}%></ul>",
+          scaleGridLineColor: "rgba(100,100,100,0.8)",
+          scaleLineColor: "rgba(140,140,140,0.8)",
+          scaleFontColor: "rgba(200,200,200,0.8)",
           animationSteps: 15,
           responsive: true,
           maintainAspectRatio: false
@@ -35,7 +38,6 @@ var Content = React.createClass({
 
   componentWillReceiveProps: function(nextProps) {
     if (nextProps.chartData != undefined) {
-      // debugger;
       this.setState({
         chartData: [
           nextProps.chartData.stats.neutral.slice(0, -1),

@@ -20,7 +20,6 @@ var Chart = React.createClass({
       that.state.data.datasets[index].data = element;
     });
 
-    // debugger;
   },
 
   getInitialState: function() {

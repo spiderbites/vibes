@@ -1,13 +1,13 @@
 var React = require('react');
 
-var Slider = React.createClass({
+var Footer = React.createClass({
   render: function() {
     return (
-      <div className={"slider"}>
+      <div className={"footer"}>
         <input type="range"/>
       </div>
     )
   }
 });
 
-module.exports = Slider;
+module.exports = Footer;

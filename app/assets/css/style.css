@@ -11,11 +11,11 @@ html, body {
 }
 
 body {
-  font-family: "Open Sans", "Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.42857143;
   color: #c8c8c8;
-  background-color: #272b30;
+  background-color: #333337;
 }
 
 #app, #app > div {
@@ -43,10 +43,10 @@ body {
   height: 100%;
   width: 25%;
   display: inline-block;
-  /*background: linear-gradient(#484e55, #3a3f44 60%, #313539);
-  border: 1px solid rgba(0,0,0,0.6);
+  background: linear-gradient(#484e55, #3a3f44 60%, #313539);
+  border-left: 1px solid rgba(0,0,0,0.6);
   border-radius: 4px 0 0 4px;
-  text-shadow: 1px 1px 1px rgba(0,0,0,0.3);*/
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
   transition: all 1s ease;
 }
 
@@ -58,7 +58,7 @@ body {
 
 .side-pane .clicktab {
   position: absolute;
-  left: -46px;
+  left: -47px;
   height: 46px;
   width: 46px;
   background: linear-gradient(#484e55, #3a3f44 60%, #313539);
@@ -87,9 +87,9 @@ div.tweet:nth-child(1) {
   margin: 20px auto;
   width: 80%;
   text-align: center;
-  background: linear-gradient(#484e55, #3a3f44 60%, #313539);
-  border: 1px solid rgba(0,0,0,0.6);
-  border-radius: 4px;
+  /*background: linear-gradient(#484e55, #3a3f44 60%, #313539);*/
+  /*border: 1px solid rgba(0,0,0,0.6);*/
+  /*border-radius: 4px;*/
 }
 
 .header, .navbar, .slider {
@@ -97,7 +97,17 @@ div.tweet:nth-child(1) {
 }
 
 ul.line-legend {
+  display: inline-block;
   list-style: none;
+  padding: 4px;
+  background: linear-gradient(#484e55, #3a3f44 60%, #313539);
+  border: 1px solid rgba(0,0,0,0.6);
+  border-radius: 4px;
+}
+
+.line-legend li span {
+  padding: 0 4px;
+  border-radius: 4px;
 }
 
 .navbar ul {
@@ -109,13 +119,18 @@ ul.line-legend {
 }
 
 .navbar ul li {
+  width: 50%;
   display: inline-block;
-  padding: 0px 25px;
+  /*padding: 0px 25px;*/
   font-size: 36px;
 }
 
 .navbar ul li span {
   cursor: pointer;
+}
+
+.navbar ul li span:hover {
+  color: #f2f2f2;
 }
 
 .slider {
@@ -138,47 +153,6 @@ form {
 
 input {
   outline: none;
-}
-
-input[type=search] {
-  -webkit-appearance: textfield;
-  -webkit-box-sizing: content-box;
-  font-family: inherit;
-  font-size: 100%;
-}
-
-input::-webkit-search-decoration,
-input::-webkit-search-cancel-button {
-  display: none; 
-}
-
-input[type=search] {
-  background: #ededed url(../images/search-icon.png) no-repeat 9px center;
-  border: solid 1px #ccc;
-  padding: 9px 10px 9px 32px;
-  width: 140px;
-  
-  -webkit-border-radius: 10em;
-  -moz-border-radius: 10em;
-  border-radius: 10em;
-  
-  -webkit-transition: all .5s;
-  -moz-transition: all .5s;
-  transition: all .5s;
-
-  position: relative;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-input[type=search]:focus {
-  width: 200px;
-  background-color: #fff;
-  border-color: #66CC75;
-  
-  -webkit-box-shadow: 0 0 5px rgba(109,207,246,.5);
-  -moz-box-shadow: 0 0 5px rgba(109,207,246,.5);
-  box-shadow: 0 0 5px rgba(109,207,246,.5);
 }
 
 input[type=range] {
@@ -285,14 +259,70 @@ input[type=range]:focus::-ms-fill-upper {
   background: #367ebd;
 }
 
+input[type=search],
 input[type=number] {
+  -webkit-appearance: textfield;
+  -webkit-box-sizing: content-box;
+  font-family: inherit;
+  font-size: 100%;
+}
+
+input::-webkit-search-decoration,
+input::-webkit-search-cancel-button {
+  display: none; 
+}
+
+input[type=search] {
+  background: #ededed url(../images/search-icon.png) no-repeat 9px center;
+  width: 140px;
+}
+
+input[type=number] {
+  width: 70px;
+  margin-left: 10px;
+}
+
+input[type=search],
+input[type=number] {
+  border: solid 1px #ccc;
+  padding: 9px 10px 9px 32px;
+  
+  -webkit-border-radius: 10em;
+  -moz-border-radius: 10em;
+  border-radius: 10em;
+  
+  -webkit-transition: all .5s;
+  -moz-transition: all .5s;
+  transition: all .5s;
+
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+input[type=search]:focus {
+  width: 200px;
+}
+
+
+input[type=search]:focus,
+input[type=number]:focus {
+  background-color: #fff;
+  border-color: #66CC75;
+  
+  -webkit-box-shadow: 0 0 5px rgba(109,207,246,.5);
+  -moz-box-shadow: 0 0 5px rgba(109,207,246,.5);
+  box-shadow: 0 0 5px rgba(109,207,246,.5);
+}
+
+/*input[type=number] {
     position: relative;
     top: 25%;
     margin-left: 10px;
     padding-left: 5px;
     border-radius: 1em;
     width: 50px;
-}
+}*/
 
 input[type="submit"] {
   position: relative;
