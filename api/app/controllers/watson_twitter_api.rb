@@ -14,9 +14,11 @@ class WatsonTwitterApi
     }
   }
 
+  DEFAULT_HOUR_SLICES = 30
+
   def initialize(parameters, changes)
     @order_by = parameters[:order_by].to_sym
-    @slices = (parameters[:in_slices_of] || 48).to_i
+    @slices = (parameters[:in_slices_of] || DEFAULT_HOUR_SLICES).to_i
     @from = "&from=#{parameters[:from]}"
     time_param = obtain_time_param(parameters)
     @time = [time_param, parameters[time_param]]

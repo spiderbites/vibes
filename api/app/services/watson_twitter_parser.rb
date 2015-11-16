@@ -71,10 +71,10 @@ class WatsonTwitterParser
 
   def refine
     intervals = if @time[0] == :hours
-                  labels = lambda { intervals.map { |e| e[0].split('T')[1] } }
+                  labels = lambda { intervals.map { |e| e[0] } }
                   create_hourly_time_slices(@time[1], @slices)
                 else
-                  labels = lambda { intervals.map { |e| e[0].split('T')[0] } }
+                  labels = lambda { intervals.map { |e| e[0] } }
                   create_daily_time_slices(@time[1], @slices)
                 end
     @data.keys.each do |k|

@@ -59,10 +59,6 @@ var App = React.createClass({
   updateData: function(data, q, isNextPage) {
     // This is a repeat query
     
-    data.time_labels = data.time_labels.map(function(label) {
-      return label.split(':').slice(0,2).join(':');
-    });
-
     if (this.state.q === q) {
       if (isNextPage) {
         for (var i = 0; i < data.time_labels.length; i++) {
@@ -84,7 +80,6 @@ var App = React.createClass({
 
     // This is a new query
     else {
-
       this.setState({
         mapData: {new: data.map, old: []},
         tweetData: data.tweets,

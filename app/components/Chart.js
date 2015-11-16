@@ -12,15 +12,31 @@ var Chart = React.createClass({
     });
   },
 
-  componentWillReceiveProps: function(nextProps) {
-    this.state.data.labels = nextProps.labels;
+  formatLabelHour: function(label) {
+    return new Date(label).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  },
 
+  formatLabelDay: function(label) {
+    return new Date(label).toLocaleDateString()
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    // Format the label strings to look nice.
+    // We use some super magic numbers to figure out if we're displaying results of an
+    // hourly search or a daily search.
+    var diff = new Date(nextProps.labels[1]) - new Date(nextProps.labels[0]);
+    if (isNaN(diff)) // don't convert the initial dummy labels...
+      this.state.data.labels = nextProps.labels;
+    else if (diff === 86400000) //  There are this many milliseconds in a day!
+      this.state.data.labels = nextProps.labels.map(this.formatLabelDay);
+    else // We're showing hourly data..
+      this.state.data.labels = nextProps.labels.map(this.formatLabelHour);
+
+    // Converting the data into the format required for ChartJS
     var that = this;
     nextProps.data.forEach(function(element, index) {
       that.state.data.datasets[index].data = element;
     });
-
-    // debugger;
   },
 
   getInitialState: function() {
@@ -65,7 +81,7 @@ var Chart = React.createClass({
   },
 
   render: function(){
-    var legend = this.state && this.state.legend || '';
+    //var legend = this.state && this.state.legend || '';
 
     return (
       <div className={"chart " + this.props.className}>
