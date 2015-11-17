@@ -1,5 +1,6 @@
 class WatsonTwitterInsightsApi
   include HTTParty
+  include DebugHelper
 
   base_uri 'https://cdeservice.mybluemix.net/api/v1'
 
@@ -41,6 +42,7 @@ class WatsonTwitterInsightsApi
     def generate_error_response(error)
       {
         error: {
+          origin: self.to_s,
           class: error.class.to_s,
           msg: error.to_s,
           cause: error && error.cause && error.cause.to_s || nil,
@@ -51,32 +53,27 @@ class WatsonTwitterInsightsApi
       }
     end
 
-    def debug_helper(error_msg, n)
-      info = "-------------------#{n}-Net::ReadTimeout----#{SEARCH + @query}---"
-      Resque.logger.info(info)
-      puts info
-      Resque.logger.info(error_msg)
-      puts error_msg
+    def debug_heading(error_class, n)
+      "-------------------#{n}-#{error_class}----#{SEARCH + @query}---"
+    end
+
+    def manage_exception(e, n)
+      heading = debug_heading(e.class.to_s, n)
+
+      response = generate_error_response(e)
+      output_debug_info(response, heading)
+
+      (n > 0)? http_response_wrapped_in_exception_handling(n-1) : response
     end
 
     def http_response_wrapped_in_exception_handling(n)
+
       begin
         response = self.class.get(SEARCH + "#{@query}", @@auth)
-
       rescue Net::ReadTimeout => e
-
-        response = generate_error_response(e)
-        debug_helper(response, n)
-
-        if n == 0
-          response
-        else
-          response = http_response_wrapped_in_exception_handling(n-1)
-        end
-
+        response = manage_exception(e, n)
       rescue Exception => e
-        response = generate_error_response(e)
-        debug_helper(response, n)
+        response = manage_exception(e, n)
       end
       response
     end
