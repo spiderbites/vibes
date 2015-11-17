@@ -24,8 +24,8 @@ var Map = React.createClass({
 
     // add markers for all new geo points we received
     if (nextProps.data.new !== []) {
-      nextProps.data.new.map(function(geo_array) {
-        this.addMarker(geo_array[1], geo_array[0], geo_array[2]);
+      nextProps.data.new.map(function(e) {
+        this.addMarker(e.geo[1], e.geo[0], e.sentiment);
       }.bind(this));
     }
   },
