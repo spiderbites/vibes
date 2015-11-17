@@ -35,6 +35,13 @@ class WatsonTwitterInsightsApi
       end
     rescue Exception => e
       # An anamoly occured which needs further inspection as to its cause.
+      # Here is more detail from /resque/failed
+      #     Exception: TypeError
+      #     Error: no implicit conversion of Symbol into Integer
+      #     /Users/Coder/.rvm/gems/ruby-2.1.5/gems/httparty-0.13.7/lib/httparty/response.rb:67:in `[]'
+      #     /Users/Coder/.rvm/gems/ruby-2.1.5/gems/httparty-0.13.7/lib/httparty/response.rb:67:in `method_missing'
+      #     /Users/Coder/lighthouse/final-project/latest/vibes_old/api/app/controllers/watson_twitter_insights_api.rb:26:in `get'
+      #     /Users/Coder/lighthouse/final-project/latest/vibes_old/api/app/workers/background.rb:25:in `perform'
       binding.pry
       puts generate_error_response(e)
     end
