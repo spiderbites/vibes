@@ -35,12 +35,9 @@ class BackgroundJobsController
         # Nothing needs to be done as everything is in the db
       else
         distribution[:api].each do |interval|
-          _from = interval[:from].gsub('.000Z', 'Z')
-          _until = interval[:until].gsub('.000Z', 'Z')
-          url = 'q=' + @query[:term] + ' posted:' +
-                  _from + ',' +
-                  _until + '&size=500'
-          Resque.enqueue(Background, URI.encode(url), @config)
+          @config.time.update_stamp(interval)
+          url = @config.create_a_query
+          Resque.enqueue(Background, url, @config)
         end
       end
     end

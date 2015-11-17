@@ -63,12 +63,20 @@ class TimeParser
     @stamp = "#{@time_format[:from]},#{@time_format[:until]}"
   end
 
+  def reset_stamp
+    @stamp = "#{@time_format[:from]},#{@time_format[:until]}"
+  end
+
+  def update_stamp(interval)
+    @stamp = "#{interval[:from]},#{interval[:until]}"
+  end
+
   def errors
     (@parameters.public_methods & TIMES).length > 1 ? "At most one time parameter allowed." : nil
   end
 
   def to_s
-    "posted:#{@time_format[:from]},#{@time_format[:until]}"
+    "posted:#{@stamp}"
   end
 
   private
@@ -156,7 +164,11 @@ class QueryParser
     @pagination = PaginationParser.new(@parameters)
 
     @@parsers = [@parameters, @term, @time, @stats, @location, @pagination]
-    @query = construct_query
+    @query = create_a_query
+  end
+
+  def create_a_query
+    URI.encode(@@parsers.map(&:to_s).select(&:presence).join(' ')).gsub('\u0026',"&")
   end
 
   def errors?
@@ -166,9 +178,4 @@ class QueryParser
   def errors
     @@parsers.map(&:errors).select(&:presence)
   end
-
-  private
-    def construct_query
-      URI.encode(@@parsers.map(&:to_s).select(&:presence).join(' ')).gsub('\u0026',"&")
-    end
 end
