@@ -15,16 +15,21 @@ class Background
     meta = nil
     next_url = ''
     while (!meta || (meta[:from] < meta[:quantity])) do
-      watsonApi = WatsonTwitterInsightsApi.new(url, {}, next_url)
+      watsonApi = WatsonTwitterInsightsApi.new(url)
       url = ''
       results = watsonApi.get
-      save_to_db([results])
-      # batches << results
-      meta = results[:meta_data]
-      next_url = meta[:next]
-      Resque.logger.info("------------------#{URI.decode(next_url)}")
-      Resque.logger.info("---------------------#{meta}")
-      sleep 4
+      if results[:error]
+        exit
+      else
+        save_to_db([results])
+        # batches << results
+        meta = results[:meta_data]
+        next_url = meta[:next]
+        Resque.logger.info("------------------#{URI.decode(next_url)}")
+        Resque.logger.info("---------------------#{meta}")
+        sleep 4
+        url = next_url
+      end
     end
   end
 

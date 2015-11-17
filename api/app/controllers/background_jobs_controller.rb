@@ -37,10 +37,10 @@ class BackgroundJobsController
         distribution[:api].each do |interval|
           _from = interval[:from].gsub('.000Z', 'Z')
           _until = interval[:until].gsub('.000Z', 'Z')
-          url = @query[:term] + ' posted:' +
+          url = 'q=' + @query[:term] + ' posted:' +
                   _from + ',' +
                   _until + '&size=500'
-          Resque.enqueue(Background, url, @config)
+          Resque.enqueue(Background, URI.encode(url), @config)
         end
       end
     end
