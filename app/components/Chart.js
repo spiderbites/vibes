@@ -9,11 +9,11 @@ var Chart = React.createClass({
   },
 
   formatLabelHour: function(label) {
-    return new Date(label).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    return new Date(Date.parse(label + " UTC")).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
   },
 
   formatLabelDay: function(label) {
-    return new Date(label).toLocaleDateString()
+    return new Date(Date.parse(label + " UTC")).toLocaleDateString();
   },
 
   componentWillReceiveProps: function(nextProps) {
@@ -23,9 +23,9 @@ var Chart = React.createClass({
     var diff = new Date(nextProps.labels[1]) - new Date(nextProps.labels[0]);
     if (isNaN(diff)) // don't convert the initial dummy labels...
       this.state.data.labels = nextProps.labels;
-    else if (diff === 86400000) //  There are this many milliseconds in a day!
+    else if (diff >= 86400000) //  There are this many milliseconds in a day -> show data with day labels
       this.state.data.labels = nextProps.labels.map(this.formatLabelDay);
-    else // We're showing hourly data..
+    else // Show data with hour labels
       this.state.data.labels = nextProps.labels.map(this.formatLabelHour);
 
     // Converting the data into the format required for ChartJS
