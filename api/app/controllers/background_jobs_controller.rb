@@ -1,5 +1,4 @@
 class BackgroundJobsController
-  include Timestamp
 
   def self.run(config)
     BackgroundJobsController.new(config)
