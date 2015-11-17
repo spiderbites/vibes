@@ -3,10 +3,14 @@ class JsonAssembler
   attr_reader :json
   def initialize(data, config)
     @data = data
-    @config = config
-    @json = {}
-    generate_meta_data
-    assemble
+    if @data[:error]
+      @json = @data.merge({config: config})
+    else
+      @config = config
+      @json = {}
+      generate_meta_data
+      assemble
+    end
   end
 
   private
