@@ -7,15 +7,15 @@ class Background
     hash.keys.reduce({}) {|a,e| a[e.to_sym] = hash[e]; a}
   end
 
-  def self.perform(url, parameters, changes)
+  def self.perform(url, config)
     Resque.logger.info("")
     Resque.logger.info "---------START JOB"
-    Resque.logger.info("-------------#{url}, #{parameters}, #{changes}")
+    Resque.logger.info("-------------#{url}, #{config}")
     batches = []
     meta = nil
     next_url = ''
     while (!meta || (meta[:from] < meta[:quantity])) do
-      watsonApi = WatsonTwitterApi.new(url, {}, next_url)
+      watsonApi = WatsonTwitterInsightsApi.new(url, {}, next_url)
       url = ''
       results = watsonApi.get
       save_to_db([results])

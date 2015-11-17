@@ -8,6 +8,7 @@ class BackgroundJobsController
 
     def initialize(config)
       time_param = config.time.unit
+      @config = config
       @time = {
         :type => config.time.unit,
         :quantity => config.time.quantity,
@@ -21,7 +22,7 @@ class BackgroundJobsController
     end
 
     def construct_query
-      @config = {
+      @query = {
         :term => @term,
         :location => @location,
         :time => @time[:format]
@@ -29,17 +30,17 @@ class BackgroundJobsController
     end
 
     def dispatchWorkers
-      distribution = Tweet.determine_db_api_distribution(@config)
+      distribution = Tweet.determine_db_api_distribution(@query)
       if distribution[:api].empty?
         # Nothing needs to be done as everything is in the db
       else
         distribution[:api].each do |interval|
           _from = interval[:from].gsub('.000Z', 'Z')
           _until = interval[:until].gsub('.000Z', 'Z')
-          url = @config[:term] + ' posted:' +
+          url = @query[:term] + ' posted:' +
                   _from + ',' +
                   _until + '&size=500'
-          Resque.enqueue(Background, url, {}, '')
+          Resque.enqueue(Background, url, @config)
         end
       end
     end

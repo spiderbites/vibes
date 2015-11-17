@@ -86,8 +86,8 @@ class Statistics < ActiveRecord::Base
 
   def self.determine_db_api_distribution(query)
     @ordered = self.where("url LIKE ? and url LIKE ?", "%#{query[:term]}%", "%#{query[:location]}%").order(:time)
-    _from = @ordered.first ? @ordered.first.time : Time.now.utc.iso8601
-    _until = @ordered.last ? @ordered.last.time : Time.now.utc.iso8601
+    _from = @ordered.first ? @ordered.first.time.iso8601 : Time.now.utc.iso8601.to_s
+    _until = @ordered.last ? @ordered.last.time.iso8601 : Time.now.utc.iso8601.to_s
     interval_db = {
       :from => _from,
       :until => _until
