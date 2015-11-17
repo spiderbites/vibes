@@ -75,6 +75,7 @@ class WatsonTwitterInsightsApi
       rescue Exception => e
         response = manage_exception(e, n)
       end
+
       response
     end
 
