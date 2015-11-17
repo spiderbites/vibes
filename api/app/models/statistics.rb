@@ -3,28 +3,36 @@ class Statistics < ActiveRecord::Base
 
   def self.statistics_improved(config)
     @db = self.name.downcase + 's'
-    _from = config.time.time_format[:from].to_time.strftime('%Y-%m-%d %H:%M:%S')
-    _until = config.time.time_format[:until].to_time.strftime('%Y-%m-%d %H:%M:%S')
+    if @db == 'caches'
+      constraint = ""
+    else
+      _from = config.time.time_format[:from].to_time.strftime('%Y-%m-%d %H:%M:%S')
+      _until = config.time.time_format[:until].to_time.strftime('%Y-%m-%d %H:%M:%S')
+      constraint = "WHERE time <= '#{_until}' and time >= '#{_from}'"
+    end
+
+    unit = config.stats.unit.to_s.sub('by_','').to_s
+    quantity = config.stats.quantity.to_i
     sql = {
       :aggregate => "
           SELECT
-              date_trunc('minute', time) - (CAST(EXTRACT(MINUTE FROM time) AS integer) % 10) * interval '1 minute' AS intervals,
+              date_trunc('#{unit}', time) - (CAST(EXTRACT(#{unit} FROM time) AS integer) % #{quantity}) * interval '1 #{unit}' AS intervals,
               sentiment,
               count(*)
           FROM #{@db}
-          WHERE time <= '#{_until}' and time >= '#{_from}'
+          #{constraint}
           GROUP BY sentiment, intervals
           ORDER BY sentiment, intervals;
         ",
-      :min => "SELECT date_trunc('minute', min) - (CAST(EXTRACT(MINUTE from min) AS integer) % 10) * interval '1 minute' as intervals from (SELECT min(time) from #{@db} WHERE time <= '#{_until}' and time >= '#{_from}') as m;",
-      :max => "SELECT date_trunc('minute', max) - (CAST(EXTRACT(MINUTE from max) AS integer) % 10) * interval '1 minute' as intervals from (SELECT max(time) from #{@db} WHERE time <= '#{_until}' and time >= '#{_from}') as m;"
+      :min => "SELECT date_trunc('#{unit}', min) - (CAST(EXTRACT(#{unit} from min) AS integer) % #{quantity}) * interval '1 #{unit}' as intervals from (SELECT min(time) from #{@db} #{constraint}) as m;",
+      :max => "SELECT date_trunc('#{unit}', max) - (CAST(EXTRACT(#{unit} from max) AS integer) % #{quantity}) * interval '1 #{unit}' as intervals from (SELECT max(time) from #{@db} #{constraint}) as m;"
     }
     @min = ActiveRecord::Base.connection.execute(sql[:min]).to_a[0]["intervals"]
     @max = ActiveRecord::Base.connection.execute(sql[:max]).to_a[0]["intervals"]
     @records = ActiveRecord::Base.connection.execute(sql[:aggregate])
-
-    step_unit = config.stats.unit.to_s.sub('by_','').to_sym
+    step_unit = unit.to_sym
     @in_steps_of = (config.stats.quantity).send(step_unit)
+
     if @min && @max
       @time = {
         :from => @min.to_time,
