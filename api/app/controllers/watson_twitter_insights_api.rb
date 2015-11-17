@@ -4,7 +4,7 @@ class WatsonTwitterInsightsApi
   base_uri 'https://cdeservice.mybluemix.net/api/v1'
 
   MAXTRIES = 5
-  TIMEOUTDURATION = 0.2
+  TIMEOUTDURATION = 60
 
   @@username = ENV['username2']
   @@password = ENV['password2']

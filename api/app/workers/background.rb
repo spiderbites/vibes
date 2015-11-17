@@ -20,7 +20,7 @@ class Background
 
     meta = nil
     next_url = ''
-    while (!meta || (meta[:from] < meta[:quantity])) do
+    while (!meta || (meta[:next_from] < meta[:total])) do
       watsonApi = WatsonTwitterInsightsApi.new(url)
       results = watsonApi.get
 
@@ -28,15 +28,15 @@ class Background
         log_failed_job(url)
         exit
       else
-        save_to_db(results)
+        # save_to_db(results)
         meta = results[:meta_data]
-        next_url = meta[:next]
+        next_url = meta[:next_url]
 
         output_body(next_url, meta)
 
         sleep PAUSEBETWEENAPICALLS
 
-        url = next_url
+        url = 'q=' + next_url
       end
     end
   end
@@ -48,7 +48,7 @@ class Background
 
   def self.log_failed_job(url)
     term = url.split('posted:')[0]
-    range = url.split('posted:')[1].split('%20&from')[0]
+    range = url.split('posted:')[1].split('&from')[0]
     from = url.split('&from=')[1].split('&')[0]
 
     File.open(FAILEDJOBSFILE, 'a') do |file|
