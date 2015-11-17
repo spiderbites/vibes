@@ -1,42 +1,47 @@
 class Background
 
-  @queue = :watson_twitter_api_queue
-  @@batches = []
+  PAUSEBETWEENAPICALLS = 4
 
-  def self.convert_string_hash_to_sym_hash(hash)
-    hash.keys.reduce({}) {|a,e| a[e.to_sym] = hash[e]; a}
+  @queue = :watson_twitter_api_queue
+
+  def self.output_header(url, config)
+    DebugHelper.output_data("")
+    DebugHelper.output_data("---------START JOB")
+    DebugHelper.output_data("-------------#{url}, #{config}")
+  end
+
+  def self.output_body(next_url, meta)
+    DebugHelper.output_data("------------------#{URI.decode(next_url)}")
+    DebugHelper.output_data("---------------------#{meta}")
   end
 
   def self.perform(url, config)
-    Resque.logger.info("")
-    Resque.logger.info "---------START JOB"
-    Resque.logger.info("-------------#{url}, #{config}")
-    batches = []
+    output_header(url, config)
+
     meta = nil
     next_url = ''
     while (!meta || (meta[:from] < meta[:quantity])) do
       watsonApi = WatsonTwitterInsightsApi.new(url)
-      url = ''
       results = watsonApi.get
+
       if results[:error]
         exit
       else
-        save_to_db([results])
-        # batches << results
+        save_to_db(results)
         meta = results[:meta_data]
         next_url = meta[:next]
-        Resque.logger.info("------------------#{URI.decode(next_url)}")
-        Resque.logger.info("---------------------#{meta}")
-        sleep 4
+
+        output_body(next_url, meta)
+
+        sleep PAUSEBETWEENAPICALLS
+
         url = next_url
       end
     end
   end
 
-  def self.save_to_db(batches)
-    batches.each do |batch|
-      url = URI.decode(batch[:meta_data][:current_url].split('&from=')[0])
-      batch[:data].each { |e| Tweet.create e.merge({url: url}) }
-    end
+  def self.save_to_db(data)
+    url = URI.decode(data[:meta_data][:current_url].split('&from=')[0])
+    Tweet.create data[:data].map { |e| e.merge({url: url}) }
   end
 end

@@ -1,6 +1,5 @@
 class WatsonTwitterInsightsApi
   include HTTParty
-  include DebugHelper
 
   base_uri 'https://cdeservice.mybluemix.net/api/v1'
 
@@ -61,7 +60,7 @@ class WatsonTwitterInsightsApi
       heading = debug_heading(e.class.to_s, n)
 
       response = generate_error_response(e)
-      output_debug_info(response, heading)
+      DebugHelper.output_debug_info(response, heading)
 
       (n > 0)? http_response_wrapped_in_exception_handling(n-1) : response
     end
