@@ -23,14 +23,20 @@ class WatsonTwitterInsightsApi
   def get
     response = http_response_wrapped_in_exception_handling(MAXTRIES)
 
-    if response[:error]
-      response
-    else
-      parser = WatsonTwitterInsightsParser.new(response, @query)
-      {
-        meta_data: parser.meta_data,
-        data: parser.data
-      }
+    begin
+      if response[:error]
+        response
+      else
+        parser = WatsonTwitterInsightsParser.new(response, @query)
+        {
+          meta_data: parser.meta_data,
+          data: parser.data
+        }
+      end
+    rescue Exception => e
+      # An anamoly occured which needs further inspection as to its cause.
+      binding.pry
+      puts generate_error_response(e)
     end
   end
 
