@@ -3,6 +3,8 @@ class Statistics < ActiveRecord::Base
 
   def self.statistics_improved(config)
     @db = self.name.downcase + 's'
+    _from = config.time.time_format[:from].to_time.strftime('%Y-%m-%d %H:%M:%S')
+    _until = config.time.time_format[:until].to_time.strftime('%Y-%m-%d %H:%M:%S')
     sql = {
       :aggregate => "
           SELECT
@@ -10,23 +12,23 @@ class Statistics < ActiveRecord::Base
               sentiment,
               count(*)
           FROM #{@db}
+          WHERE time <= '#{_until}' and time >= '#{_from}'
           GROUP BY sentiment, intervals
           ORDER BY sentiment, intervals;
         ",
-      :min => "SELECT date_trunc('minute', min) - (CAST(EXTRACT(MINUTE from min) AS integer) % 10) * interval '1 minute' as intervals from (SELECT min(time) from #{@db}) as m;",
-      :max => "SELECT date_trunc('minute', max) - (CAST(EXTRACT(MINUTE from max) AS integer) % 10) * interval '1 minute' as intervals from (SELECT max(time) from #{@db}) as m;"
+      :min => "SELECT date_trunc('minute', min) - (CAST(EXTRACT(MINUTE from min) AS integer) % 10) * interval '1 minute' as intervals from (SELECT min(time) from #{@db} WHERE time <= '#{_until}' and time >= '#{_from}') as m;",
+      :max => "SELECT date_trunc('minute', max) - (CAST(EXTRACT(MINUTE from max) AS integer) % 10) * interval '1 minute' as intervals from (SELECT max(time) from #{@db} WHERE time <= '#{_until}' and time >= '#{_from}') as m;"
     }
-
-    min = ActiveRecord::Base.connection.execute(sql[:min]).to_a[0]["intervals"]
-    max = ActiveRecord::Base.connection.execute(sql[:max]).to_a[0]["intervals"]
-    records = ActiveRecord::Base.connection.execute(sql[:aggregate])
+    @min = ActiveRecord::Base.connection.execute(sql[:min]).to_a[0]["intervals"]
+    @max = ActiveRecord::Base.connection.execute(sql[:max]).to_a[0]["intervals"]
+    @records = ActiveRecord::Base.connection.execute(sql[:aggregate])
 
     step_unit = config.stats.unit.to_s.sub('by_','').to_sym
     @in_steps_of = (config.stats.quantity).send(step_unit)
-    if min && max
+    if @min && @max
       @time = {
-        :from => min.to_time,
-        :until => max.to_time
+        :from => @min.to_time,
+        :until => @max.to_time
       }
       assemble_results(config)
     else
@@ -38,8 +40,8 @@ class Statistics < ActiveRecord::Base
     if (@db == 'caches')
       tweets = self.all
     else
-      term = config.term.contents
-      sql = "url LIKE '%#{term}%' and time <= '#{max}' and time >= '#{min}'"
+      term = config.term.to_db_compatible_s
+      sql = "url LIKE '%#{term}%' and time <= '#{@max}' and time >= '#{@min}'"
       tweets = self.where(sql)
     end
 
@@ -47,8 +49,11 @@ class Statistics < ActiveRecord::Base
     timings = range.step(@in_steps_of).map do |t|
       Time.at(t).strftime('%Y-%m-%d %H:%M:%S')
     end
-    # results = records.to_a.reduce({:negative => [], :positive => [], :neutral => []}) {|a,e| a[e["sentiment"].to_sym] << [e["intervals"], e["count"]]; a }
 
+    # The data assembly below ensures a consistent format as opposed to the other query:
+    #     results = @records.to_a.reduce({:negative => [], :positive => [], :neutral => []}) {|a,e| a[e["sentiment"].to_sym] << [e["intervals"], e["count"]]; a }
+    # which entails gaps in the data. The approach below is not the most ideal approach as it conflates
+    # front-end needs with back-end, but for our purpose it is simply more convenient and only takes about 50 ms extra.
     zeros = Array.new(timings.length, 0)
 
     acc = {
@@ -57,7 +62,7 @@ class Statistics < ActiveRecord::Base
       :neutral => Hash[timings.zip zeros]
     }
 
-    results = records.reduce(acc) do |a, e|
+    results = @records.reduce(acc) do |a, e|
       a[e["sentiment"].to_sym][e["intervals"]] = e["count"].to_i
       a
     end
@@ -103,6 +108,7 @@ class Statistics < ActiveRecord::Base
   end
 
   private
+    # A query atm primarily consists of term and time range
     # A query can be in relation to what is present in the database have following possibilities:
     #   Either entire query is present in db
     #   Either portion is present, portion is missing
@@ -116,7 +122,7 @@ class Statistics < ActiveRecord::Base
     #       In this case, two API searches will need to be made according to above two possibilities.
     #   Either entire query is absent from db and this on account of following:
     #     Either this is because the db is completely empty
-    #     Either this is because the db is empty with regards to that query
+    #     Either this is because the db is empty with regards to that query only
     #       Either this is because the enquired time range does not overlap anything present in the database
     #         In such a case if the enquired range is earlier, then update the db to cover the missing gap
     #       Either this is because there is nothing about the topic present in the database.

@@ -18,7 +18,12 @@ class VibesController < ApplicationController
 
   def gradual
     q_parser = QueryParser.new(check_params)
-    render json: q_parser.route
+    if q_parser.errors?
+      render json: handle_jsonp({ errors: q_parser.errors, params: params })
+    else
+      BackgroundJobsController.run(q_parser)
+      render json: q_parser
+   end
   end
 
   def cached

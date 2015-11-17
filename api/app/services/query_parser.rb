@@ -16,11 +16,11 @@ class PaginationParser
 end
 
 class LocationParser
-  attr_reader :location
+  attr_reader :contents
 
   def initialize(parameters)
     loc = parameters.location rescue nil
-    @location = loc || ""
+    @contents = loc || ""
   end
 
   def errors
@@ -28,7 +28,7 @@ class LocationParser
   end
 
   def to_s
-    @location.empty? ? "" : "bio_location:#{location}"
+    @contents.empty? ? "" : "bio_location:#{@contents}"
   end
 end
 
@@ -52,7 +52,7 @@ end
 
 class TimeParser
   include Timestamp
-  attr_reader :time_format, :unit, :quantity
+  attr_reader :time_format, :unit, :quantity, :stamp
 
   def initialize(parameters)
     @parameters = parameters
@@ -60,6 +60,7 @@ class TimeParser
     @since = nil
     @quantity = @parameters.send(@unit).to_i rescue 3
     @time_format = time_stamp(@since)
+    @stamp = "#{@time_format[:from]},#{@time_format[:until]}"
   end
 
   def errors
@@ -108,6 +109,10 @@ class TermParser
 
   def to_s
     @contents.empty? ? "" : "q=#{@contents}"
+  end
+
+  def to_db_compatible_s
+    @contents.split.join('+')
   end
 end
 
