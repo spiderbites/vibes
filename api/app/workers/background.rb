@@ -28,7 +28,7 @@ class Background
         log_failed_job(url)
         exit
       else
-        # save_to_db(results)
+        save_to_db(results)
         meta = results[:meta_data]
         next_url = meta[:next_url]
 
