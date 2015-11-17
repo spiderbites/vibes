@@ -2,20 +2,10 @@ var React = require('react');
 var Map = require('./Map');
 var Chart = require('./Chart');
 
-// DUMMY DATA SET NOT BASED ON ANYTHING!!
-
-function rand(min, max, num) {
-  var rtn = [];
-  while (rtn.length < num) {
-    rtn.push(Math.floor((Math.random() * (max - min)) + min));
-  }
-  return rtn;
-}
-
 var Content = React.createClass({
   getInitialState: function() {
     return {
-      chartData: [[0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0]],
+      chartData: [],
       chartLabels: ["12am", "2am", "4am", "6am", "8am", "10am", "12pm", "2pm", "4pm", "6pm", "8pm", "10pm"]
     }
   },
@@ -26,6 +16,9 @@ var Content = React.createClass({
       chartOptions: {
           multiTooltipTemplate: "<%= datasetLabel %> - <%= value %>",
           legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].fillColor%>\"><%if(datasets[i].label){%><%=datasets[i].label%><%}%></span></li><%}%></ul>",
+          scaleGridLineColor: "rgba(100,100,100,0.8)",
+          scaleLineColor: "rgba(140,140,140,0.8)",
+          scaleFontColor: "rgba(200,200,200,0.8)",
           animationSteps: 15,
           responsive: true,
           maintainAspectRatio: false
@@ -35,7 +28,6 @@ var Content = React.createClass({
 
   componentWillReceiveProps: function(nextProps) {
     if (nextProps.chartData != undefined) {
-      // debugger;
       this.setState({
         chartData: [
           nextProps.chartData.stats.neutral.slice(0, -1),
