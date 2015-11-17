@@ -84,26 +84,6 @@ class Statistics < ActiveRecord::Base
     }
   end
 
-  def self.statistics(config)
-    if self.count == 0
-      empty_db_result
-    else
-      # @times = @ordered.map { |e| e.time }.uniq
-      step_unit = config.stats.unit.to_s.sub('by_','').to_sym
-      @in_steps_of = (config.stats.quantity).send(step_unit)
-
-      @time = {
-        :from => config.time.time_format[:from].to_time,
-        :until => config.time.time_format[:until].to_time + @in_steps_of
-      }
-      _from = @time[:from].utc.iso8601.sub('Z', '.000Z')
-      _until = @time[:until].utc.iso8601.sub('Z', '.000Z')
-      @ordered = self.where("url LIKE '%#{config.term.contents}%' and time <= '#{_until}' and time >= '#{_from}'").order(:time)
-      intervals = divide_in_intervals
-      calculate(intervals, config.stats)
-    end
-  end
-
   def self.determine_db_api_distribution(query)
     @ordered = self.where("url LIKE ? and url LIKE ?", "%#{query[:term]}%", "%#{query[:location]}%").order(:time)
     _from = @ordered.first ? @ordered.first.time : Time.now.utc.iso8601
@@ -181,7 +161,7 @@ class Statistics < ActiveRecord::Base
             }
           ]
         }
-      # In this case the database is empty as the until points converge.
+      # In this case the database is empty as the `until` points converge.
       else
         {
           db: nil,
@@ -196,44 +176,6 @@ class Statistics < ActiveRecord::Base
         :from => begin_end_time[0],
         :until => begin_end_time[1]
       }
-    end
-
-
-
-    def self.divide_in_intervals
-      range = (@time[:from].to_i..@time[:until].to_i)
-      timings = range.step(@in_steps_of).map{ |t| Time.at(t) }
-      result = timings.zip timings[1..-1]
-      result[1..-2]
-    end
-
-    def self.calculate(intervals, stats_config)
-      result = ['positive', 'negative', 'neutral'].reduce({}) do |a, e|
-        a[e] = intervals.map do |interval|
-          @ordered.where("time < '#{interval[1]}' and time >= '#{interval[0]}' and sentiment='#{e}'")
-        end.map {|e| e.count}
-        a
-      end
-      result[:timings] = calculate_timings(intervals, stats_config)
-      result[:tweets] = @ordered.first(750)
-      result
-    end
-
-    def self.calculate_timings(intervals, stats_config)
-      prev_day = ""
-      intervals.map do |interval|
-        current_day, current_time = interval[0].split('T')
-        if [:by_minutes, :by_hours].include?(stats_config.unit)
-          if prev_day != current_day
-            prev_day = current_day
-            interval[0]
-          else
-            current_time
-          end
-        else
-          current_day
-        end
-      end
     end
 
     def self.empty_db_result
