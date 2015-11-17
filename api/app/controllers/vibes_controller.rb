@@ -1,6 +1,4 @@
 class VibesController < ApplicationController
-  include VibesHelper
-  include ParameterSanity
   include Timestamp
 
   def immediate
