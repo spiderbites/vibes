@@ -55,7 +55,7 @@ body {
   height: 100%;
   width: 25%;
   display: inline-block;
-  background: linear-gradient(#484e55, #3a3f44 60%, #313539);
+  background: linear-gradient(#49494F, #3D3D41);
   text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
   transition: all .2s ease;
 }
@@ -65,15 +65,13 @@ body {
   overflow-x: hidden;
   height: 100%;
   font-family: Helvetica, sans-serif;
-  /*background: linear-gradient(#484e55, #3a3f44 60%, #313539);*/
-  background: #484e55;
-  /*-webkit-backface-visibility: hidden;*/
+  background: linear-gradient(#49494F, #3D3D41);
 }
 
 
 .tabs * {
   box-sizing: border-box;
-  background: #484e55;
+  background: #49494F;
   border-radius: 4px 0 0 4px;
   cursor: pointer;
 }
@@ -187,26 +185,46 @@ div.tweet:nth-child(1) {
 }
 
 .navbar ul {
-  width: 100%;
+  width: 80%;
+  margin: auto;
+  background: linear-gradient(#49494F, #3D3D41);
+  /*background: linear-gradient(#484e55, #3a3f44 60%, #313539);*/
+  border: 2px solid #252527;
+  border-radius: 20px;
   list-style: none;
-  position: relative;
-  top: 50%;
-  transform: translateY(-50%);
+  /*position: relative;*/
+  /*top: 50%;*/
+  /*transform: translateY(-50%);*/
 }
 
 .navbar ul li {
+  box-sizing: border-box;
   width: 50%;
   display: inline-block;
-  /*padding: 0px 25px;*/
-  font-size: 36px;
-}
-
-.navbar ul li span {
+  /*padding: 0px 20px;*/
+  font-size: 50px;
+  border-left: 1px solid #252527;
+  border-right: 1px solid #252527;
   cursor: pointer;
 }
 
-.navbar ul li span:hover {
+.navbar ul li:hover {
   color: #f2f2f2;
+}
+
+.navbar ul li:active {
+  background: linear-gradient(#3D3D41, #49494F);
+}
+
+.navbar ul li:first-child {
+  border-left: 1px solid transparent;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+}
+.navbar ul li:last-child {
+  border-right: 1px solid transparent;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
 }
 
 .footer {
