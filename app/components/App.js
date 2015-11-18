@@ -42,12 +42,7 @@ var App = React.createClass({
 
     // SEARCH BY DAY: currently allow search for 1 to 30 days
     // -------------------------------------------------------
-    // if 1 day, want results chunked by hour       -> stats=by_hours:1  (24 chunks)
-    // if 2 days, want results chunked by 2 hours   -> stats=by_hours:2  (24 chunks)
-    // ...
-    // if 30 days, want results chunked by 30 hours -> stats=by_hours:30 (24 chunks)
-    // =====
-    // in other words, "stats=by_hours:?" = day
+    // if searching by days, we chunk results by day...
 
 
     // SEARCH BY HOUR: currently allow search for 1 to 48 hours
@@ -55,7 +50,7 @@ var App = React.createClass({
     // if 1 hr, want results chunked by 2 mins    -> stats=by_minutes:2  (30 chunks)
     // if 2 hrs, want results chunked by 4 mins   -> stats=by_minutes:4  (30 chunks)
     // ...
-    // if 48 hrs, want results chunked by 96 mins -> stats=by_minutes: (30 chunks)
+    // if 48 hrs, want results chunked by 96 mins -> stats=by_minutes:96 (30 chunks)
     // =====
     // in other words, "stats=by_minutes:?" = 2*hours
 
@@ -71,7 +66,7 @@ var App = React.createClass({
       params["stats"] = "by_minutes:" + (2 * params["hours"]);
     }
     else {
-      params["stats"] = "by_hours:" + (params["days"]);
+      params["stats"] = "by_days:1";
     }
     this.loadDataFromServer(params);
   },
