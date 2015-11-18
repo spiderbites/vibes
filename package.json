@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "watchify -v -d -t [ reactify --es6 ] main.js -o bundle.js",
-    "build": "NODE_ENV=production browserify -t [ reactify --es6 ] main.js | uglifyjs > bundle.js"
+    "build": "NODE_ENV=production browserify -t [ reactify --es6 ] main.js | uglifyjs > app/bundle.js"
   },
   "author": "",
   "license": "ISC",
