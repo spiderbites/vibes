@@ -5,9 +5,9 @@ var $ = require('jquery');
 
 var App = React.createClass({
 
-  API_IMMEDIATE: "http://localhost:3000/immediate/search",
-  API_CACHED: "http://localhost:3000/cached/search",
-  API_GRADUAL: "http://localhost:3000/gradual/search",
+  API_IMMEDIATE: "http://vibesapi.herokuapp.com/immediate/search",
+  API_CACHED: "http://vibesapi.herokuapp.com/cached/search",
+  API_GRADUAL: "http://vibesapi.herokuapp.com/gradual/search",
 
   // for live polling -- grab every 30 seconds 
   LIVE: {INTERVAL: 60000, STATS: "by_minutes:1", TIMEUNIT: "minutes", TIMELENGTH: "1"},
