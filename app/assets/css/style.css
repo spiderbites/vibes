@@ -158,8 +158,24 @@ div.tweet:nth-child(1) {
   height: 85px;
 }
 
-.legend {
+.legend,
+.blurb {
+  position: absolute;
+  display: inline-block;
   width: 50%;
+  height: 100%;
+}
+
+.legend {
+  left: 0;
+}
+
+.blurb p {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 15pt;
+  font-weight: bold;
 }
 
 .legend ul {
@@ -364,7 +380,7 @@ input[type="radio"] {
 }
 
 .tweet {
-  background: linear-gradient(#484e55, #3a3f44 60%, #313539);
+  background: linear-gradient(#49494F, #3D3D41);
   border: 1px solid rgba(0,0,0,0.6);
   border-radius: 4px 0 0 4px;
   text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
@@ -372,11 +388,11 @@ input[type="radio"] {
 }
 
 .tweet.sentiment-negative {
-  background: #9C2E2E;
+  background: linear-gradient(#9C2E2E, #8C2929);
 }
 
 .tweet.sentiment-positive {
-  background: #446744;
+  background: linear-gradient(#446744, #3D5C3D);
 }
 
 p.tweet-user {
