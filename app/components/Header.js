@@ -54,7 +54,14 @@ var Header = React.createClass({
 
     var query;
     if (this.state.q !== "") {
-      if (!this.props.done) {
+
+      if (this.state.search_type === "live") {
+        query = <div className='showing_results'>
+                  Showing live activity mentioning <span className='search_result'>{this.state.q}</span> from the past 30 minutes<span className="one">.</span><span className="two">.</span><span className="three">.</span>
+                </div>;
+      }
+
+      else if (!this.props.done) {
         query = <div className='showing_results'>
                   Searching for tweets mentioning <span className='search_result'>{this.state.q}</span> from the past{this.time_search_string()}<span className="one">.</span><span className="two">.</span><span className="three">.</span>
                 </div>;
@@ -69,14 +76,14 @@ var Header = React.createClass({
     return (
       <div className={"header"}>
         <form onSubmit={this.handleSubmit}>
-          <input type="submit" onClick={this.submitLive} value="Live Vibes" />
           <input type="search" placeholder={this.placeholder.search} ref="query" />
           <input type="number" min="1" max={this.state.max_time} ref="time_amt" placeholder={this.placeholder.number}/>
           <div className="radio_buttons">
             <input type="radio" ref="time_unit" name="time_unit" value="hours" onChange={this.onTimeUnitChanged} checked={this.state.time_unit === "hours"} /> Hours
             <input type="radio" ref="time_unit" name="time_unit" value="days" onChange={this.onTimeUnitChanged} checked={this.state.time_unit === "days"} /> Days
           </div>
-          <input type="submit" onClick={this.submitPast} value="Past Vibes" disabled={!this.props.done}/>
+          <input type="submit" onClick={this.submitPast} value="Search Vibes" disabled={!this.props.done}/>
+          <span>or... </span><input type="submit" onClick={this.submitLive} value="Live Vibes" />
         </form>
         {query}
       </div>

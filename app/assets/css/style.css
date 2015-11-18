@@ -298,6 +298,12 @@ input[type="radio"] {
   top:25%;
 }
 
+.header span {
+  top: 25%;
+  position: relative;
+  margin-left: 10px;
+}
+
 .content {
   position: absolute;
   top: 170px;
