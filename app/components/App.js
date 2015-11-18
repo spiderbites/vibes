@@ -5,22 +5,33 @@ var $ = require('jquery');
 
 var App = React.createClass({
 
-  API_IMMEDIATE: "http://localhost:3000/immediate/search",
-  API_CACHED: "http://localhost:3000/cached/search",
-  API_GRADUAL: "http://localhost:3000/gradual/search",
+  API_IMMEDIATE: "https://vibesapi.herokuapp.com/immediate/search",
+  API_CACHED: "https://vibesapi.herokuapp.com/cached/search",
+  API_GRADUAL: "https://vibesapi.herokuapp.com/gradual/search",
 
-  // for live polling -- grab every 30 seconds 
+  // for live polling -- grab every 60 seconds 
   LIVE: {INTERVAL: 60000, STATS: "by_minutes:1", TIMEUNIT: "minutes", TIMELENGTH: "1"},
 
   getInitialState: function() {
-    return { sideshow: '', mapData: {new: [], old: []}, tweetData: [], tweetsToShow: [], q: "", done: true, posActive: "", negActive: ""};
+    return { sideshow: '', mapData: {new: [], old: []}, tweetData: [], tweetsToShow: [], q: "", done: true, posActive: "", negActive: "", liveInterval: null};
   },
 
   handleQuerySubmit: function(params) {
 
+    // when a user submits a new query, remove all the data in the browser
+    this.setState(
+      {
+        mapData: {new: [], old: []}, 
+        tweetData: [], 
+        tweetsToShow: [], 
+        chartData: {time_labels: ["12am", "2am", "4am", "6am", "8am", "10am", "12pm", "2pm", "4pm", "6pm", "8pm", "10pm"], stats: {positive:[], negative:[], neutral:[] }}
+      }
+    );
+
     if (params.search_type === "live") {
       params = {q: params.q, minutes: this.LIVE.TIMELENGTH, stats: this.LIVE.STATS};
-      setInterval(this.loadDataLive.bind(this, params), this.LIVE.INTERVAL);
+      var intvl = setInterval(this.loadDataLive.bind(this, params), this.LIVE.INTERVAL);
+      this.setState({liveInterval: intvl});
 
       // bootstrap the live polling with the the last 30 mins of data
       this.loadDataFromServer({q: params.q, minutes:"30", stats:"by_minutes:1"});
@@ -31,12 +42,7 @@ var App = React.createClass({
 
     // SEARCH BY DAY: currently allow search for 1 to 30 days
     // -------------------------------------------------------
-    // if 1 day, want results chunked by hour       -> stats=by_hours:1  (24 chunks)
-    // if 2 days, want results chunked by 2 hours   -> stats=by_hours:2  (24 chunks)
-    // ...
-    // if 30 days, want results chunked by 30 hours -> stats=by_hours:30 (24 chunks)
-    // =====
-    // in other words, "stats=by_hours:?" = day
+    // if searching by days, we chunk results by day...
 
 
     // SEARCH BY HOUR: currently allow search for 1 to 48 hours
@@ -44,7 +50,7 @@ var App = React.createClass({
     // if 1 hr, want results chunked by 2 mins    -> stats=by_minutes:2  (30 chunks)
     // if 2 hrs, want results chunked by 4 mins   -> stats=by_minutes:4  (30 chunks)
     // ...
-    // if 48 hrs, want results chunked by 96 mins -> stats=by_minutes: (30 chunks)
+    // if 48 hrs, want results chunked by 96 mins -> stats=by_minutes:96 (30 chunks)
     // =====
     // in other words, "stats=by_minutes:?" = 2*hours
 
@@ -60,13 +66,12 @@ var App = React.createClass({
       params["stats"] = "by_minutes:" + (2 * params["hours"]);
     }
     else {
-      params["stats"] = "by_hours:" + (params["days"]);
+      params["stats"] = "by_days:1";
     }
     this.loadDataFromServer(params);
   },
 
   loadDataLive: function(params) {
-    console.log("POLLING");
     $.ajax({
       url: this.API_IMMEDIATE,
       data: params,
@@ -79,6 +84,11 @@ var App = React.createClass({
         console.error(params, status, err.toString());
       }.bind(this)
     });
+  },
+
+  handleStopLive: function() {
+    clearInterval(this.state.liveInterval);
+    this.setState({liveInterval:null});
   },
 
   loadDataFromServer: function(params) {
@@ -130,19 +140,49 @@ var App = React.createClass({
     // This is a repeat query
     
     if (this.state.q === q) {
-      if (isNextPage) {
-        for (var i = 0; i < data.timings.length; i++) {
-          data.positive[i] += this.state.chartData.stats.positive[i];
-          data.neutral[i] += this.state.chartData.stats.neutral[i];
-          data.negative[i] += this.state.chartData.stats.negative[i];
-        }
-      }
 
+
+      /* Begin chart updating stuff...
+       * This gets tricky because on recurring calls we get variable sized arrays, with some endpoints being left off.
+       * Accommodating for the cases below
+       */
+      if (isNextPage) {
+        
+        var mx = Math.max(data.timings.length, this.state.chartData.time_labels.length);
+
+        var new_positive = Array.apply(null, Array(mx)).map(Number.prototype.valueOf,0);
+        var new_negative = Array.apply(null, Array(mx)).map(Number.prototype.valueOf,0);
+        var new_neutral = Array.apply(null, Array(mx)).map(Number.prototype.valueOf,0);
+        
+        for (var i = 0; i < mx; i++) {
+          if (data.timings[i] !== undefined) {
+            new_positive[i] += data.positive[i]
+            new_negative[i] += data.negative[i]
+            new_neutral[i] += data.neutral[i]
+          }
+          if (this.state.chartData.stats.positive[i] !== undefined) {
+            new_positive[i] += this.state.chartData.stats.positive[i];
+            new_negative[i] += this.state.chartData.stats.negative[i];
+            new_neutral[i] += this.state.chartData.stats.neutral[i];            
+          }
+        }
+        var times_to_use = data.timings.length >= this.state.chartData.time_labels.length ? data.timings : this.state.chartData.time_labels
+        this.setState({
+          chartData: {stats: {negative: new_negative, positive: new_positive, neutral: new_neutral}, time_labels: times_to_use}
+        })
+      }
+      else {
+        this.setState({
+          chartData: {stats: {negative: data.negative, neutral:data.neutral, positive:data.positive}, time_labels: data.timings}
+        });
+      }
+      /* End charting updating stuff */
+
+      /* Updating everything else is simple, just concat */
       this.setState({
         mapData: {new: data.map, old: (this.state.mapData.new).concat(this.state.mapData.old)},
         tweetData: (this.state.tweetData).concat(data.tweets),
-        tweetsToShow: (this.state.tweetData).concat(data.tweets),
-        chartData: {stats: {negative: data.negative, neutral:data.neutral, positive:data.positive}, time_labels: data.timings}
+        tweetsToShow: (this.state.tweetData).concat(data.tweets)
       });
     }
 
@@ -198,7 +238,9 @@ var App = React.createClass({
                      onQuerySubmit={this.handleQuerySubmit}
                      className={this.state.sideshow}
                      currentQuery={this.state.q}
-                     done={this.state.done} />
+                     done={this.state.done}
+                     numTweets={this.state.tweetData.length}
+                     onStopLive={this.handleStopLive} />
 
         <SidePane className={this.state.sideshow}
                   clicktabClick={this.handleSideshow}
