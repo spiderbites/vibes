@@ -20,9 +20,13 @@ var Header = React.createClass({
     if (!query)
       return;
     
-    var newProps = {q: query}   
-    newProps[this.state.time_unit] = this.refs.time_amt.value
-
+    var newProps = {q: query}
+    if (this.state.search_type === "live") {
+      newProps.search_type = "live"
+    } else {
+      newProps[this.state.time_unit] = this.refs.time_amt.value  
+    }
+    
     this.setState({q: query, q_time_unit: this.state.time_unit, q_time_amt: this.refs.time_amt.value})
 
     this.props.onQuerySubmit(newProps);
@@ -38,11 +42,25 @@ var Header = React.createClass({
     return " " + time_amt + " " + time_unit
   },
 
-  render: function() {
+  submitLive: function() {
+    this.setState({search_type: "live"});
+  },
 
+  submitPast: function() {
+    this.setState({search_type: "past"});
+  },
+
+  showing_results_string: function() {
     var query;
     if (this.state.q !== "") {
-      if (!this.props.done) {
+
+      if (this.state.search_type === "live") {
+        query = <div className='showing_results'>
+                  Showing live activity mentioning <span className='search_result'>{this.state.q}</span> from the past 30 minutes<span className="one">.</span><span className="two">.</span><span className="three">.</span>
+                </div>;
+      }
+
+      else if (!this.props.done) {
         query = <div className='showing_results'>
                   Searching for tweets mentioning <span className='search_result'>{this.state.q}</span> from the past{this.time_search_string()}<span className="one">.</span><span className="two">.</span><span className="three">.</span>
                 </div>;
@@ -53,7 +71,10 @@ var Header = React.createClass({
                 </div>;
       }
     }
+    return query;
+  },
 
+  render: function() {
     return (
       <div className={"header"}>
         <form onSubmit={this.handleSubmit}>
@@ -63,9 +84,10 @@ var Header = React.createClass({
             <input type="radio" ref="time_unit" name="time_unit" value="hours" onChange={this.onTimeUnitChanged} checked={this.state.time_unit === "hours"} /> Hours
             <input type="radio" ref="time_unit" name="time_unit" value="days" onChange={this.onTimeUnitChanged} checked={this.state.time_unit === "days"} /> Days
           </div>
-          <input type="submit" disabled={!this.props.done}/>
+          <input type="submit" onClick={this.submitPast} value="Search Vibes" disabled={!this.props.done}/>
+          <span>or... </span><input type="submit" onClick={this.submitLive} value="Live Vibes" />
         </form>
-        {query}
+        {this.showing_results_string()}
       </div>
     )
   }
