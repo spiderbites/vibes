@@ -1,12 +1,4 @@
 .DS_Store
 npm-debug.log
-app/node_modules
-app/bundle.js
-
+node_modules
 /.bundle
-api/log/*
-!api/log/.keep
-api/tmp
-api/.env
-app/assets/testing-data/*
-api/old
