@@ -20,9 +20,13 @@ var Header = React.createClass({
     if (!query)
       return;
     
-    var newProps = {q: query}   
-    newProps[this.state.time_unit] = this.refs.time_amt.value
-
+    var newProps = {q: query}
+    if (this.state.search_type === "live") {
+      newProps.search_type = "live"
+    } else {
+      newProps[this.state.time_unit] = this.refs.time_amt.value  
+    }
+    
     this.setState({q: query, q_time_unit: this.state.time_unit, q_time_amt: this.refs.time_amt.value})
 
     this.props.onQuerySubmit(newProps);
@@ -36,6 +40,14 @@ var Header = React.createClass({
     var time_amt = this.state.q_time_amt === "1" ? "" : this.state.q_time_amt
     var time_unit = time_amt === "" ? this.state.q_time_unit.slice(0, this.state.q_time_unit.length - 1) : this.state.q_time_unit
     return " " + time_amt + " " + time_unit
+  },
+
+  submitLive: function() {
+    this.setState({search_type: "live"});
+  },
+
+  submitPast: function() {
+    this.setState({search_type: "past"});
   },
 
   render: function() {
@@ -57,13 +69,14 @@ var Header = React.createClass({
     return (
       <div className={"header"}>
         <form onSubmit={this.handleSubmit}>
+          <input type="submit" onClick={this.submitLive} value="Live Vibes" />
           <input type="search" placeholder={this.placeholder.search} ref="query" />
           <input type="number" min="1" max={this.state.max_time} ref="time_amt" placeholder={this.placeholder.number}/>
           <div className="radio_buttons">
             <input type="radio" ref="time_unit" name="time_unit" value="hours" onChange={this.onTimeUnitChanged} checked={this.state.time_unit === "hours"} /> Hours
             <input type="radio" ref="time_unit" name="time_unit" value="days" onChange={this.onTimeUnitChanged} checked={this.state.time_unit === "days"} /> Days
           </div>
-          <input type="submit" disabled={!this.props.done}/>
+          <input type="submit" onClick={this.submitPast} value="Past Vibes" disabled={!this.props.done}/>
         </form>
         {query}
       </div>

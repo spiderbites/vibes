@@ -30,9 +30,9 @@ var Content = React.createClass({
     if (nextProps.chartData != undefined) {
       this.setState({
         chartData: [
-          nextProps.chartData.stats.neutral.slice(0, -1),
-          nextProps.chartData.stats.negative.slice(0, -1),
-          nextProps.chartData.stats.positive.slice(0, -1)
+          nextProps.chartData.stats.neutral,
+          nextProps.chartData.stats.negative,
+          nextProps.chartData.stats.positive
         ],
         chartLabels: nextProps.chartData.time_labels
       });

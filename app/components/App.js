@@ -9,11 +9,24 @@ var App = React.createClass({
   API_CACHED: "http://localhost:3000/cached/search",
   API_GRADUAL: "http://localhost:3000/gradual/search",
 
+  // for live polling -- grab every 30 seconds 
+  LIVE: {INTERVAL: 60000, STATS: "by_minutes:1", TIMEUNIT: "minutes", TIMELENGTH: "1"},
+
   getInitialState: function() {
     return { sideshow: '', mapData: {new: [], old: []}, tweetData: [], tweetsToShow: [], q: "", done: true, posActive: "", negActive: ""};
   },
 
   handleQuerySubmit: function(params) {
+
+    if (params.search_type === "live") {
+      params = {q: params.q, minutes: this.LIVE.TIMELENGTH, stats: this.LIVE.STATS};
+      setInterval(this.loadDataLive.bind(this, params), this.LIVE.INTERVAL);
+
+      // bootstrap the live polling with the the last 30 mins of data
+      this.loadDataFromServer({q: params.q, minutes:"30", stats:"by_minutes:1"});
+      return;
+    }
+
     this.setState({done: false});
 
     // SEARCH BY DAY: currently allow search for 1 to 30 days
@@ -52,20 +65,28 @@ var App = React.createClass({
     this.loadDataFromServer(params);
   },
 
+  loadDataLive: function(params) {
+    console.log("POLLING");
+    $.ajax({
+      url: this.API_IMMEDIATE,
+      data: params,
+      dataType: 'json',
+      success: function(data) {
+
+        this.updateLive(data.data);
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(params, status, err.toString());
+      }.bind(this)
+    });
+  },
+
   loadDataFromServer: function(params) {
     $.ajax({
       url: this.API_IMMEDIATE,
       data: params,
       dataType: 'json',
       success: function(data) {
-        // this.setData(data);
-        // this.updateData(data.data, params.q, false);
-
-        // NEED TO SET INTERVAL TO UPDATE IN REALTIME
-
-        // the below is for grabbing data directly from Watson (through our API) and will be
-        // re-used in our realtime data grabbing function
-
         if (params.from == undefined) { var isNextPage = false; }
         else { var isNextPage = true; }
 
@@ -88,22 +109,21 @@ var App = React.createClass({
     });
   },
 
-  /**
-   * This function is called every time we load new data, and, depending on the type of data
-   * (tweets, geodata, chartdata) updates the appropriate state, and does something intelligent
-   * to combine it with old data if there is any (and it makes sense to).
-   */
+  updateLive: function(data) {
 
-  setData: function(data) {
-    data.time_labels = data.time_labels.map(function(label) {
-      return label.split(':').slice(0,2).join(':');
-    });
+    // remove the first data point and add the next one
+    var new_time_labels = this.state.chartData.time_labels.slice(1).concat(data.timings)
+    var new_positive = this.state.chartData.stats.positive.slice(1).concat(data.positive)
+    var new_negative = this.state.chartData.stats.negative.slice(1).concat(data.negative)
+    var new_neutral = this.state.chartData.stats.neutral.slice(1).concat(data.neutral)
 
     this.setState({
-      mapData: {new: data.map, old: []},
-      tweetData: data.tweets,
-      chartData: {stats: data.stats, time_labels: data.time_labels},
+      mapData: {new: data.map, old: (this.state.mapData.new).concat(this.state.mapData.old)},
+      tweetData: (this.state.tweetData).concat(data.tweets),
+      tweetsToShow: (this.state.tweetData).concat(data.tweets),
+      chartData: {stats: {negative: new_negative, neutral:new_neutral, positive:new_positive}, time_labels: new_time_labels}
     });
+
   },
 
   updateData: function(data, q, isNextPage) {

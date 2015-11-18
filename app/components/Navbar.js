@@ -2,7 +2,6 @@ var React = require('react');
 
 var Navbar = React.createClass({
   selectContent: function(type) {
-    console.log(type);
     this.props.selectContent(type);
   },
 
