@@ -18,6 +18,16 @@ var App = React.createClass({
 
   handleQuerySubmit: function(params) {
 
+    // when a user submits a new query, remove all the data in the browser
+    this.setState(
+      {
+        mapData: {new: [], old: []}, 
+        tweetData: [], 
+        tweetsToShow: [], 
+        chartData: {timeLabels: ["12am", "2am", "4am", "6am", "8am", "10am", "12pm", "2pm", "4pm", "6pm", "8pm", "10pm"], stats: {positive:[], negative:[], neutral:[] }}
+      }
+    );
+
     if (params.search_type === "live") {
       params = {q: params.q, minutes: this.LIVE.TIMELENGTH, stats: this.LIVE.STATS};
       var intvl = setInterval(this.loadDataLive.bind(this, params), this.LIVE.INTERVAL);

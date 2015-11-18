@@ -39,7 +39,7 @@ var Chart = React.createClass({
 
   getInitialState: function() {
     var data = {
-      labels: this.props.labels,
+      labels: ["12am", "2am", "4am", "6am", "8am", "10am", "12pm", "2pm", "4pm", "6pm", "8pm", "10pm"],
       datasets: [
         {
           label: "Neutral and Ambivalent Sentiments",
@@ -49,7 +49,7 @@ var Chart = React.createClass({
           pointStrokeColor: "#fff",
           pointHighlightFill: "#fff",
           pointHighlightStroke: "rgba(220,220,220,1)",
-          data: this.props.data[0]
+          data: []
         },
         {
           label: "Negative Sentiments",
@@ -59,7 +59,7 @@ var Chart = React.createClass({
           pointStrokeColor: "#fff",
           pointHighlightFill: "#fff",
           pointHighlightStroke: "rgba(255,51,51,1)",
-          data: this.props.data[1]
+          data: []
         },
         {
           label: "Positive Sentiments",
@@ -69,7 +69,7 @@ var Chart = React.createClass({
           pointStrokeColor: "#fff",
           pointHighlightFill: "#fff",
           pointHighlightStroke: "rgba(0,204,102,1)",
-          data: this.props.data[2]
+          data: []
         }
       ]
     };

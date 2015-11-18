@@ -4,10 +4,7 @@ var Chart = require('./Chart');
 
 var Content = React.createClass({
   getInitialState: function() {
-    return {
-      chartData: [],
-      chartLabels: ["12am", "2am", "4am", "6am", "8am", "10am", "12pm", "2pm", "4pm", "6pm", "8pm", "10pm"]
-    }
+    return {}
   },
 
   // Figure out smoother animation...
