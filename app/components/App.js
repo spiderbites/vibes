@@ -13,14 +13,15 @@ var App = React.createClass({
   LIVE: {INTERVAL: 60000, STATS: "by_minutes:1", TIMEUNIT: "minutes", TIMELENGTH: "1"},
 
   getInitialState: function() {
-    return { sideshow: '', mapData: {new: [], old: []}, tweetData: [], tweetsToShow: [], q: "", done: true, posActive: "", negActive: ""};
+    return { sideshow: '', mapData: {new: [], old: []}, tweetData: [], tweetsToShow: [], q: "", done: true, posActive: "", negActive: "", liveInterval: null};
   },
 
   handleQuerySubmit: function(params) {
 
     if (params.search_type === "live") {
       params = {q: params.q, minutes: this.LIVE.TIMELENGTH, stats: this.LIVE.STATS};
-      setInterval(this.loadDataLive.bind(this, params), this.LIVE.INTERVAL);
+      var intvl = setInterval(this.loadDataLive.bind(this, params), this.LIVE.INTERVAL);
+      this.setState({liveInterval: intvl});
 
       // bootstrap the live polling with the the last 30 mins of data
       this.loadDataFromServer({q: params.q, minutes:"30", stats:"by_minutes:1"});
@@ -78,6 +79,11 @@ var App = React.createClass({
         console.error(params, status, err.toString());
       }.bind(this)
     });
+  },
+
+  handleStopLive: function() {
+    clearInterval(this.state.liveInterval);
+    this.setState({liveInterval:null});
   },
 
   loadDataFromServer: function(params) {
@@ -228,7 +234,8 @@ var App = React.createClass({
                      className={this.state.sideshow}
                      currentQuery={this.state.q}
                      done={this.state.done}
-                     numTweets={this.state.tweetData.length} />
+                     numTweets={this.state.tweetData.length}
+                     onStopLive={this.handleStopLive} />
 
         <SidePane className={this.state.sideshow}
                   clicktabClick={this.handleSideshow}
