@@ -129,26 +129,54 @@ var App = React.createClass({
     // This is a repeat query
     
     if (this.state.q === q) {
-      console.log("SET STATE TIMINGS LENGTHS: " + data.timings.length)
-      if (isNextPage) {
-        for (var i = 0; i < data.timings.length; i++) {
-          data.positive[i] += this.state.chartData.stats.positive[i];
-          data.neutral[i] += this.state.chartData.stats.neutral[i];
-          data.negative[i] += this.state.chartData.stats.negative[i];
-        }
-      }
 
+
+      /* Begin chart updating stuff...
+       * This gets tricky because on recurring calls we get variable sized arrays, with some endpoints being left off.
+       * Accommodating for the cases below
+       */
+      if (isNextPage) {
+        
+        var mx = Math.max(data.timings.length, this.state.chartData.time_labels.length);
+
+        var new_positive = Array.apply(null, Array(mx)).map(Number.prototype.valueOf,0);
+        var new_negative = Array.apply(null, Array(mx)).map(Number.prototype.valueOf,0);
+        var new_neutral = Array.apply(null, Array(mx)).map(Number.prototype.valueOf,0);
+        
+        for (var i = 0; i < mx; i++) {
+          if (data.timings[i] !== undefined) {
+            new_positive[i] += data.positive[i]
+            new_negative[i] += data.negative[i]
+            new_neutral[i] += data.neutral[i]
+          }
+          if (this.state.chartData.stats.positive[i] !== undefined) {
+            new_positive[i] += this.state.chartData.stats.positive[i];
+            new_negative[i] += this.state.chartData.stats.negative[i];
+            new_neutral[i] += this.state.chartData.stats.neutral[i];            
+          }
+        }
+        var times_to_use = data.timings.length >= this.state.chartData.time_labels.length ? data.timings : this.state.chartData.time_labels
+        this.setState({
+          chartData: {stats: {negative: new_negative, positive: new_positive, neutral: new_neutral}, time_labels: times_to_use}
+        })
+      }
+      else {
+        this.setState({
+          chartData: {stats: {negative: data.negative, neutral:data.neutral, positive:data.positive}, time_labels: data.timings}
+        });
+      }
+      /* End charting updating stuff */
+
+      /* Updating everything else is simple, just concat */
       this.setState({
         mapData: {new: data.map, old: (this.state.mapData.new).concat(this.state.mapData.old)},
         tweetData: (this.state.tweetData).concat(data.tweets),
-        tweetsToShow: (this.state.tweetData).concat(data.tweets),
-        chartData: {stats: {negative: data.negative, neutral:data.neutral, positive:data.positive}, time_labels: data.timings}
+        tweetsToShow: (this.state.tweetData).concat(data.tweets)
       });
     }
 
     // This is a new query
     else {
-      console.log("SET STATE TIMINGS LENGTHS: " + data.timings.length)
       this.setState({
         mapData: {new: data.map, old: []},
         tweetData: data.tweets,
