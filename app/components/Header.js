@@ -50,8 +50,7 @@ var Header = React.createClass({
     this.setState({search_type: "past"});
   },
 
-  render: function() {
-
+  showing_results_string: function() {
     var query;
     if (this.state.q !== "") {
 
@@ -72,7 +71,10 @@ var Header = React.createClass({
                 </div>;
       }
     }
+    return query;
+  },
 
+  render: function() {
     return (
       <div className={"header"}>
         <form onSubmit={this.handleSubmit}>
@@ -85,7 +87,7 @@ var Header = React.createClass({
           <input type="submit" onClick={this.submitPast} value="Search Vibes" disabled={!this.props.done}/>
           <span>or... </span><input type="submit" onClick={this.submitLive} value="Live Vibes" />
         </form>
-        {query}
+        {this.showing_results_string()}
       </div>
     )
   }
