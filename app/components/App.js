@@ -5,11 +5,11 @@ var $ = require('jquery');
 
 var App = React.createClass({
 
-  API_IMMEDIATE: "http://localhost:3000/immediate/search",
-  API_CACHED: "http://localhost:3000/cached/search",
-  API_GRADUAL: "http://localhost:3000/gradual/search",
+  API_IMMEDIATE: "https://vibesapi.herokuapp.com/immediate/search",
+  API_CACHED: "https://vibesapi.herokuapp.com/cached/search",
+  API_GRADUAL: "https://vibesapi.herokuapp.com/gradual/search",
 
-  // for live polling -- grab every 30 seconds 
+  // for live polling -- grab every 60 seconds 
   LIVE: {INTERVAL: 60000, STATS: "by_minutes:1", TIMEUNIT: "minutes", TIMELENGTH: "1"},
 
   getInitialState: function() {
@@ -66,7 +66,6 @@ var App = React.createClass({
   },
 
   loadDataLive: function(params) {
-    console.log("POLLING");
     $.ajax({
       url: this.API_IMMEDIATE,
       data: params,
@@ -130,6 +129,7 @@ var App = React.createClass({
     // This is a repeat query
     
     if (this.state.q === q) {
+      console.log("SET STATE TIMINGS LENGTHS: " + data.timings.length)
       if (isNextPage) {
         for (var i = 0; i < data.timings.length; i++) {
           data.positive[i] += this.state.chartData.stats.positive[i];
@@ -148,6 +148,7 @@ var App = React.createClass({
 
     // This is a new query
     else {
+      console.log("SET STATE TIMINGS LENGTHS: " + data.timings.length)
       this.setState({
         mapData: {new: data.map, old: []},
         tweetData: data.tweets,

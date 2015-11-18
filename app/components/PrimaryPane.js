@@ -40,7 +40,7 @@ var PrimaryPane = React.createClass({
   render: function() {
     return (
       <div className={"primary-pane " + this.props.className}>
-        <div className="vibes-logo">Vibes</div>
+        <div className={"vibes-logo " + this.props.className}>Vibes</div>
         <div className="arbitrary">
           <Header onQuerySubmit={this.handleQuerySubmit} currentQuery={this.props.currentQuery} done={this.props.done} />
           <Navbar selectContent={this.switchContent}/>
