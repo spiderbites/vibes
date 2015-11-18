@@ -227,7 +227,8 @@ var App = React.createClass({
                      onQuerySubmit={this.handleQuerySubmit}
                      className={this.state.sideshow}
                      currentQuery={this.state.q}
-                     done={this.state.done} />
+                     done={this.state.done}
+                     numTweets={this.state.tweetData.length} />
 
         <SidePane className={this.state.sideshow}
                   clicktabClick={this.handleSideshow}

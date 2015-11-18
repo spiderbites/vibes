@@ -63,11 +63,12 @@ var Header = React.createClass({
       else if (!this.props.done) {
         query = <div className='showing_results'>
                   Searching for tweets mentioning <span className='search_result'>{this.state.q}</span> from the past{this.time_search_string()}<span className="one">.</span><span className="two">.</span><span className="three">.</span>
+                  Currently showing <span className='search_result'>{this.props.numTweets}</span>
                 </div>;
       }
       else {
         query = <div className='showing_results'>
-                  Showing tweets mentioning <span className='search_result'>{this.state.q}</span> from the past{this.time_search_string()}
+                  Showing<span className='search_result'>{this.props.numTweets}</span>tweets mentioning<span className='search_result'>{this.state.q}</span>from the past{this.time_search_string()}
                 </div>;
       }
     }
