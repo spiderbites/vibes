@@ -69,7 +69,8 @@ var App = React.createClass({
     else {
       params["stats"] = "by_days:1";
     }
-    this.loadDataFromServer(params);
+    //this.loadDataFromServer(params); <-- old data load entry point
+    this.loadDataGradual(params);
   },
 
   loadDataLive: function(params) {
@@ -90,6 +91,40 @@ var App = React.createClass({
   handleStopLive: function() {
     clearInterval(this.state.liveInterval);
     this.setState({liveInterval:null});
+  },
+
+  loadDataGradual: function(params) {
+    $.ajax({
+      url: this.API_GRADUAL,
+      data: params,
+      dataType: 'json',
+      success: function(data) {
+        this.loadDataCached(params, data.meta_data.total, 0);
+      }.bind(this)
+    });
+  },
+
+  loadDataCached: function(params, api_total, prev_cached_total) {
+    $.ajax({
+      url: this.API_CACHED,
+      data: params,
+      dataType: 'json',
+      success: function(data) {
+        // if we haven't received at least api_total results, we need to make the recursive call
+        if (data.meta_data.total < api_total) {
+          console.log("CACHE TOTAL / API_TOTAL: " + data.meta_data.total, api_total)
+          // only update data if we received more on this call
+          if (prev_cached_total < data.meta_data.total) {
+            this.newUpdateData(data.data, params.q); 
+          }
+          this.loadDataCached(params, api_total, data.meta_data.total);
+        }
+        else {
+          this.setState({done: true});
+          this.newUpdateData(data.data, params.q);
+        }
+      }.bind(this)
+    })
   },
 
   loadDataFromServer: function(params) {
@@ -135,6 +170,16 @@ var App = React.createClass({
       chartData: {stats: {negative: new_negative, neutral:new_neutral, positive:new_positive}, time_labels: new_time_labels}
     });
 
+  },
+
+  newUpdateData: function(data, q) {
+    this.setState({
+      mapData: {new: data.map, old: []},
+      tweetData: data.tweets,
+      tweetsToShow: data.tweets,
+      chartData: {stats: {negative: data.negative, neutral:data.neutral, positive:data.positive}, time_labels: data.timings},
+      q: q
+    });
   },
 
   updateData: function(data, q, isNextPage) {
