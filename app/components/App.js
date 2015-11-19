@@ -14,7 +14,7 @@ var App = React.createClass({
   LIVE: {INTERVAL: 60000, STATS: "by_minutes:1", TIMEUNIT: "minutes", TIMELENGTH: "1"},
 
   getInitialState: function() {
-    return { sideshow: '', mapData: {new: [], old: []}, tweetData: [], tweetsToShow: [], q: "", done: true, posActive: "", negActive: "", liveInterval: null};
+    return { sideshow: '', mapData: {new: [], old: []}, tweetData: [], tweetsToShow: [], q: "", done: true, posActive: "", negActive: "", liveInterval: null, numTweets: 0};
   },
 
   handleQuerySubmit: function(params) {
@@ -25,7 +25,10 @@ var App = React.createClass({
         mapData: {new: [], old: []}, 
         tweetData: [], 
         tweetsToShow: [], 
-        chartData: {time_labels: this.DEFAULT_CHART_LABELS, stats: {positive:[], negative:[], neutral:[] }}
+        chartData: {time_labels: this.DEFAULT_CHART_LABELS, stats: {positive:[], negative:[], neutral:[] }},
+        numTweets: 0,
+        negActive: "",
+        posActive: ""
       }
     );
 
@@ -35,7 +38,7 @@ var App = React.createClass({
       this.setState({liveInterval: intvl});
 
       // bootstrap the live polling with the the last 30 mins of data
-      this.loadDataFromServer({q: params.q, minutes:"30", stats:"by_minutes:1"});
+      this.loadDataFromServer({q: params.q, minutes:"30", stats:"by_minutes:1"}, 0);
       return;
     }
 
@@ -69,7 +72,7 @@ var App = React.createClass({
     else {
       params["stats"] = "by_days:1";
     }
-    //this.loadDataFromServer(params); <-- old data load entry point
+    // this.loadDataFromServer(params, 0); //<-- old data load entry point
     this.loadDataGradual(params);
   },
 
@@ -99,40 +102,51 @@ var App = React.createClass({
       data: params,
       dataType: 'json',
       success: function(data) {
-        this.loadDataCached(params, data.meta_data.total, 0);
+        this.loadDataCached(params, data.meta_data.total, 0, 0);
       }.bind(this)
     });
   },
 
-  loadDataCached: function(params, api_total, prev_cached_total) {
+  loadDataCached: function(params, api_total, prev_cached_total, no_progress) {
     $.ajax({
       url: this.API_CACHED,
       data: params,
       dataType: 'json',
       success: function(data) {
+
+        // update the no_progress counter
+        if (prev_cached_total === data.meta_data.total)
+          no_progress += 1
+        else
+          no_progress = 0
+
         // if we haven't received at least api_total results, we need to make the recursive call
-        if (data.meta_data.total < api_total) {
+        if (data.meta_data.total < api_total && no_progress < 5) {
           console.log("CACHE TOTAL / API_TOTAL: " + data.meta_data.total, api_total)
           // only update data if we received more on this call
           if (prev_cached_total < data.meta_data.total) {
-            this.newUpdateData(data.data, params.q); 
+            this.setState({numTweets: data.meta_data.total});
+            this.newUpdateData(data.data, params.q);
           }
-          this.loadDataCached(params, api_total, data.meta_data.total);
+          this.loadDataCached(params, api_total, data.meta_data.total, no_progress);
         }
         else {
-          this.setState({done: true});
+          this.setState({done: true, numTweets: data.meta_data.total});
           this.newUpdateData(data.data, params.q);
         }
       }.bind(this)
     })
   },
 
-  loadDataFromServer: function(params) {
+  loadDataFromServer: function(params, num_loads) {
     $.ajax({
       url: this.API_IMMEDIATE,
       data: params,
       dataType: 'json',
       success: function(data) {
+
+        var MAX_LOADS = 10;
+
         if (params.from == undefined) { var isNextPage = false; }
         else { var isNextPage = true; }
 
@@ -141,9 +155,9 @@ var App = React.createClass({
 
         // Watson restricts us to 500 results at a time
         // check if there is more and run again until we've got it all for the time period requested
-        if (data.meta_data.total !== data.meta_data.next_from) {
+        if (data.meta_data.total !== data.meta_data.next_from && num_loads < MAX_LOADS) {
           params.from = data.meta_data.next_from;
-          this.loadDataFromServer(params);
+          this.loadDataFromServer(params, num_loads + 1);
         }
         else {
           this.setState({done: true});
@@ -164,6 +178,7 @@ var App = React.createClass({
     var new_neutral = this.state.chartData.stats.neutral.slice(1).concat(data.neutral)
 
     this.setState({
+      numTweets: data.tweets.length,
       mapData: {new: data.map, old: (this.state.mapData.new).concat(this.state.mapData.old)},
       tweetData: (this.state.tweetData).concat(data.tweets),
       tweetsToShow: (this.state.tweetData).concat(data.tweets),
@@ -226,6 +241,7 @@ var App = React.createClass({
 
       /* Updating everything else is simple, just concat */
       this.setState({
+        numTweets: this.state.tweetData.length + data.tweets.length,
         mapData: {new: data.map, old: (this.state.mapData.new).concat(this.state.mapData.old)},
         tweetData: (this.state.tweetData).concat(data.tweets),
         tweetsToShow: (this.state.tweetData).concat(data.tweets)
@@ -236,6 +252,7 @@ var App = React.createClass({
     else {
       this.setState({
         mapData: {new: data.map, old: []},
+        numTweets: data.tweets.length,
         tweetData: data.tweets,
         tweetsToShow: data.tweets,
         chartData: {stats: {negative: data.negative, neutral:data.neutral, positive:data.positive}, time_labels: data.timings},
@@ -285,7 +302,7 @@ var App = React.createClass({
                      className={this.state.sideshow}
                      currentQuery={this.state.q}
                      done={this.state.done}
-                     numTweets={this.state.tweetData.length}
+                     numTweets={this.state.numTweets}
                      onStopLive={this.handleStopLive} />
 
         <SidePane className={this.state.sideshow}
