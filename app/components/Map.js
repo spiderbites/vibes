@@ -18,7 +18,7 @@ var Map = React.createClass({
     // if we have new data with no old data, then there's been a new query
     // so clear all the map markers.
     //  TODO: we may want to trigger the clear as soon as the user submits a new query
-    if (nextProps.data.new.length > 0 && nextProps.data.old.length === 0) {
+    if (nextProps.data.new.length >= 0 && nextProps.data.old.length === 0) {
       this.clearAllMarkers();
     }
 

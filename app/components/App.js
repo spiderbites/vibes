@@ -5,25 +5,48 @@ var $ = require('jquery');
 
 var App = React.createClass({
 
-  API_IMMEDIATE: "http://localhost:3000/immediate/search",
-  API_CACHED: "http://localhost:3000/cached/search",
-  API_GRADUAL: "http://localhost:3000/gradual/search",
+  API_IMMEDIATE: "https://vibesapi.herokuapp.com/immediate/search",
+  API_CACHED: "https://vibesapi.herokuapp.com/cached/search",
+  API_GRADUAL: "https://vibesapi.herokuapp.com/gradual/search",
+  DEFAULT_CHART_LABELS: ["12am", "2am", "4am", "6am", "8am", "10am", "12pm", "2pm", "4pm", "6pm", "8pm", "10pm"],
+
+  // for live polling -- grab every 60 seconds 
+  LIVE: {INTERVAL: 60000, STATS: "by_minutes:1", TIMEUNIT: "minutes", TIMELENGTH: "1"},
 
   getInitialState: function() {
-    return { sideshow: '', mapData: {new: [], old: []}, tweetData: [], tweetsToShow: [], q: "", done: true, posActive: "", negActive: ""};
+    return { sideshow: '', mapData: {new: [], old: []}, tweetData: [], tweetsToShow: [], q: "", done: true, posActive: "", negActive: "", liveInterval: null, numTweets: 0};
   },
 
   handleQuerySubmit: function(params) {
+
+    // when a user submits a new query, remove all the data in the browser
+    this.setState(
+      {
+        mapData: {new: [], old: []}, 
+        tweetData: [], 
+        tweetsToShow: [], 
+        chartData: {time_labels: this.DEFAULT_CHART_LABELS, stats: {positive:[], negative:[], neutral:[] }},
+        numTweets: 0,
+        negActive: "",
+        posActive: ""
+      }
+    );
+
+    if (params.search_type === "live") {
+      params = {q: params.q, minutes: this.LIVE.TIMELENGTH, stats: this.LIVE.STATS};
+      var intvl = setInterval(this.loadDataLive.bind(this, params), this.LIVE.INTERVAL);
+      this.setState({liveInterval: intvl});
+
+      // bootstrap the live polling with the the last 30 mins of data
+      this.loadDataFromServer({q: params.q, minutes:"30", stats:"by_minutes:1"}, 0);
+      return;
+    }
+
     this.setState({done: false});
 
     // SEARCH BY DAY: currently allow search for 1 to 30 days
     // -------------------------------------------------------
-    // if 1 day, want results chunked by hour       -> stats=by_hours:1  (24 chunks)
-    // if 2 days, want results chunked by 2 hours   -> stats=by_hours:2  (24 chunks)
-    // ...
-    // if 30 days, want results chunked by 30 hours -> stats=by_hours:30 (24 chunks)
-    // =====
-    // in other words, "stats=by_hours:?" = day
+    // if searching by days, we chunk results by day...
 
 
     // SEARCH BY HOUR: currently allow search for 1 to 48 hours
@@ -31,7 +54,7 @@ var App = React.createClass({
     // if 1 hr, want results chunked by 2 mins    -> stats=by_minutes:2  (30 chunks)
     // if 2 hrs, want results chunked by 4 mins   -> stats=by_minutes:4  (30 chunks)
     // ...
-    // if 48 hrs, want results chunked by 96 mins -> stats=by_minutes: (30 chunks)
+    // if 48 hrs, want results chunked by 96 mins -> stats=by_minutes:96 (30 chunks)
     // =====
     // in other words, "stats=by_minutes:?" = 2*hours
 
@@ -47,24 +70,90 @@ var App = React.createClass({
       params["stats"] = "by_minutes:" + (2 * params["hours"]);
     }
     else {
-      params["stats"] = "by_hours:" + (params["days"]);
+      params["stats"] = "by_days:1";
     }
-    this.loadDataFromServer(params);
+    // this.loadDataFromServer(params, 0); //<-- old data load entry point
+    this.loadDataGradual(params);
   },
 
-  loadDataFromServer: function(params) {
+  loadDataLive: function(params) {
     $.ajax({
       url: this.API_IMMEDIATE,
       data: params,
       dataType: 'json',
       success: function(data) {
-        // this.setData(data);
-        // this.updateData(data.data, params.q, false);
 
-        // NEED TO SET INTERVAL TO UPDATE IN REALTIME
+        this.updateLive(data.data);
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(params, status, err.toString());
+      }.bind(this)
+    });
+  },
 
-        // the below is for grabbing data directly from Watson (through our API) and will be
-        // re-used in our realtime data grabbing function
+  handleStopLive: function() {
+    clearInterval(this.state.liveInterval);
+    this.setState({liveInterval:null});
+  },
+
+  loadDataGradual: function(params) {
+    $.ajax({
+      url: this.API_GRADUAL,
+      data: params,
+      dataType: 'json',
+      success: function(data) {
+        this.loadDataCached(params, data.meta_data.total, 0, 0);
+      }.bind(this),
+      error: function(xhr, status, err) {
+        this.setState({done: true});
+        console.error(params, status, err.toString());
+      }.bind(this)
+    });
+  },
+
+  loadDataCached: function(params, api_total, prev_cached_total, no_progress) {
+    $.ajax({
+      url: this.API_CACHED,
+      data: params,
+      dataType: 'json',
+      success: function(data) {
+
+        // update the no_progress counter
+        if (prev_cached_total === data.meta_data.total)
+          no_progress += 1
+        else
+          no_progress = 0
+
+        // if we haven't received at least api_total results, we need to make the recursive call
+        if (data.meta_data.total < api_total && no_progress < 5) {
+          console.log("CACHE TOTAL / API_TOTAL: " + data.meta_data.total, api_total)
+          // only update data if we received more on this call
+          if (prev_cached_total < data.meta_data.total) {
+            this.setState({numTweets: data.meta_data.total});
+            this.newUpdateData(data.data, params.q);
+          }
+          this.loadDataCached(params, api_total, data.meta_data.total, no_progress);
+        }
+        else {
+          this.setState({done: true, numTweets: data.meta_data.total});
+          this.newUpdateData(data.data, params.q);
+        }
+      }.bind(this),
+      error: function(xhr, status, err) {
+        this.setState({done: true});
+        console.error(params, status, err.toString());
+      }.bind(this)
+    })
+  },
+
+  loadDataFromServer: function(params, num_loads) {
+    $.ajax({
+      url: this.API_IMMEDIATE,
+      data: params,
+      dataType: 'json',
+      success: function(data) {
+
+        var MAX_LOADS = 10;
 
         if (params.from == undefined) { var isNextPage = false; }
         else { var isNextPage = true; }
@@ -74,9 +163,9 @@ var App = React.createClass({
 
         // Watson restricts us to 500 results at a time
         // check if there is more and run again until we've got it all for the time period requested
-        if (data.meta_data.total !== data.meta_data.next_from) {
+        if (data.meta_data.total !== data.meta_data.next_from && num_loads < MAX_LOADS) {
           params.from = data.meta_data.next_from;
-          this.loadDataFromServer(params);
+          this.loadDataFromServer(params, num_loads + 1);
         }
         else {
           this.setState({done: true});
@@ -88,21 +177,31 @@ var App = React.createClass({
     });
   },
 
-  /**
-   * This function is called every time we load new data, and, depending on the type of data
-   * (tweets, geodata, chartdata) updates the appropriate state, and does something intelligent
-   * to combine it with old data if there is any (and it makes sense to).
-   */
+  updateLive: function(data) {
 
-  setData: function(data) {
-    data.time_labels = data.time_labels.map(function(label) {
-      return label.split(':').slice(0,2).join(':');
+    // remove the first data point and add the next one
+    var new_time_labels = this.state.chartData.time_labels.slice(1).concat(data.timings)
+    var new_positive = this.state.chartData.stats.positive.slice(1).concat(data.positive)
+    var new_negative = this.state.chartData.stats.negative.slice(1).concat(data.negative)
+    var new_neutral = this.state.chartData.stats.neutral.slice(1).concat(data.neutral)
+
+    this.setState({
+      numTweets: data.tweets.length,
+      mapData: {new: data.map, old: (this.state.mapData.new).concat(this.state.mapData.old)},
+      tweetData: (this.state.tweetData).concat(data.tweets),
+      tweetsToShow: (this.state.tweetData).concat(data.tweets),
+      chartData: {stats: {negative: new_negative, neutral:new_neutral, positive:new_positive}, time_labels: new_time_labels}
     });
 
+  },
+
+  newUpdateData: function(data, q) {
     this.setState({
       mapData: {new: data.map, old: []},
       tweetData: data.tweets,
-      chartData: {stats: data.stats, time_labels: data.time_labels},
+      tweetsToShow: data.tweets,
+      chartData: {stats: {negative: data.negative, neutral:data.neutral, positive:data.positive}, time_labels: data.timings},
+      q: q
     });
   },
 
@@ -110,19 +209,50 @@ var App = React.createClass({
     // This is a repeat query
     
     if (this.state.q === q) {
-      if (isNextPage) {
-        for (var i = 0; i < data.timings.length; i++) {
-          data.positive[i] += this.state.chartData.stats.positive[i];
-          data.neutral[i] += this.state.chartData.stats.neutral[i];
-          data.negative[i] += this.state.chartData.stats.negative[i];
-        }
-      }
 
+
+      /* Begin chart updating stuff...
+       * This gets tricky because on recurring calls we get variable sized arrays, with some endpoints being left off.
+       * Accommodating for the cases below
+       */
+      if (isNextPage) {
+        
+        var mx = Math.max(data.timings.length, this.state.chartData.time_labels.length);
+
+        var new_positive = Array.apply(null, Array(mx)).map(Number.prototype.valueOf,0);
+        var new_negative = Array.apply(null, Array(mx)).map(Number.prototype.valueOf,0);
+        var new_neutral = Array.apply(null, Array(mx)).map(Number.prototype.valueOf,0);
+        
+        for (var i = 0; i < mx; i++) {
+          if (data.timings[i] !== undefined) {
+            new_positive[i] += data.positive[i]
+            new_negative[i] += data.negative[i]
+            new_neutral[i] += data.neutral[i]
+          }
+          if (this.state.chartData.stats.positive[i] !== undefined) {
+            new_positive[i] += this.state.chartData.stats.positive[i];
+            new_negative[i] += this.state.chartData.stats.negative[i];
+            new_neutral[i] += this.state.chartData.stats.neutral[i];            
+          }
+        }
+        var times_to_use = data.timings.length >= this.state.chartData.time_labels.length ? data.timings : this.state.chartData.time_labels
+        this.setState({
+          chartData: {stats: {negative: new_negative, positive: new_positive, neutral: new_neutral}, time_labels: times_to_use}
+        })
+      }
+      else {
+        this.setState({
+          chartData: {stats: {negative: data.negative, neutral:data.neutral, positive:data.positive}, time_labels: data.timings}
+        });
+      }
+      /* End charting updating stuff */
+
+      /* Updating everything else is simple, just concat */
       this.setState({
+        numTweets: this.state.tweetData.length + data.tweets.length,
         mapData: {new: data.map, old: (this.state.mapData.new).concat(this.state.mapData.old)},
         tweetData: (this.state.tweetData).concat(data.tweets),
-        tweetsToShow: (this.state.tweetData).concat(data.tweets),
-        chartData: {stats: {negative: data.negative, neutral:data.neutral, positive:data.positive}, time_labels: data.timings}
+        tweetsToShow: (this.state.tweetData).concat(data.tweets)
       });
     }
 
@@ -130,6 +260,7 @@ var App = React.createClass({
     else {
       this.setState({
         mapData: {new: data.map, old: []},
+        numTweets: data.tweets.length,
         tweetData: data.tweets,
         tweetsToShow: data.tweets,
         chartData: {stats: {negative: data.negative, neutral:data.neutral, positive:data.positive}, time_labels: data.timings},
@@ -178,7 +309,9 @@ var App = React.createClass({
                      onQuerySubmit={this.handleQuerySubmit}
                      className={this.state.sideshow}
                      currentQuery={this.state.q}
-                     done={this.state.done} />
+                     done={this.state.done}
+                     numTweets={this.state.numTweets}
+                     onStopLive={this.handleStopLive} />
 
         <SidePane className={this.state.sideshow}
                   clicktabClick={this.handleSideshow}
