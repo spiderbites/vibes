@@ -103,6 +103,10 @@ var App = React.createClass({
       dataType: 'json',
       success: function(data) {
         this.loadDataCached(params, data.meta_data.total, 0, 0);
+      }.bind(this),
+      error: function(xhr, status, err) {
+        this.setState({done: true});
+        console.error(params, status, err.toString());
       }.bind(this)
     });
   },
@@ -134,6 +138,10 @@ var App = React.createClass({
           this.setState({done: true, numTweets: data.meta_data.total});
           this.newUpdateData(data.data, params.q);
         }
+      }.bind(this),
+      error: function(xhr, status, err) {
+        this.setState({done: true});
+        console.error(params, status, err.toString());
       }.bind(this)
     })
   },
