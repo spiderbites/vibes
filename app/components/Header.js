@@ -69,6 +69,7 @@ var Header = React.createClass({
       if (this.state.search_type === "live") {
         query = <div className='showing_results'>
                   Showing live activity mentioning <span className='search_result'>{this.state.q}</span> from the past 30 minutes<span className="one">.</span><span className="two">.</span><span className="three">.</span>
+                  (Data updates every 60 seconds).
                 </div>;
       }
 

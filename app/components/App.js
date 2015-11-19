@@ -8,6 +8,7 @@ var App = React.createClass({
   API_IMMEDIATE: "https://vibesapi.herokuapp.com/immediate/search",
   API_CACHED: "https://vibesapi.herokuapp.com/cached/search",
   API_GRADUAL: "https://vibesapi.herokuapp.com/gradual/search",
+  DEFAULT_CHART_LABELS: ["12am", "2am", "4am", "6am", "8am", "10am", "12pm", "2pm", "4pm", "6pm", "8pm", "10pm"],
 
   // for live polling -- grab every 60 seconds 
   LIVE: {INTERVAL: 60000, STATS: "by_minutes:1", TIMEUNIT: "minutes", TIMELENGTH: "1"},
@@ -24,7 +25,7 @@ var App = React.createClass({
         mapData: {new: [], old: []}, 
         tweetData: [], 
         tweetsToShow: [], 
-        chartData: {time_labels: ["12am", "2am", "4am", "6am", "8am", "10am", "12pm", "2pm", "4pm", "6pm", "8pm", "10pm"], stats: {positive:[], negative:[], neutral:[] }}
+        chartData: {time_labels: this.DEFAULT_CHART_LABELS, stats: {positive:[], negative:[], neutral:[] }}
       }
     );
 
