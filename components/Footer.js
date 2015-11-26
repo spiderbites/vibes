@@ -11,6 +11,9 @@ var Footer = React.createClass({
             <li className="positive"><div></div> Positive Sentiments</li>
           </ul>
         </div>
+        <div className="blurb">
+          <p>* Twitter sentiment as analyzed by Watson.</p>
+        </div>
       </div>
     )
   }

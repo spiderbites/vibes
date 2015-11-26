@@ -10,6 +10,10 @@ var PrimaryPane = React.createClass({
     this.props.onQuerySubmit(params);
   },
 
+  handleStopLive: function() {
+    this.props.onStopLive();
+  },
+
   switchContent: function(contentSelected) {
     if (contentSelected === 'Chart') {
       this.setState({
@@ -40,9 +44,9 @@ var PrimaryPane = React.createClass({
   render: function() {
     return (
       <div className={"primary-pane " + this.props.className}>
-        <div className="vibes-logo">Vibes</div>
+        <div className={"vibes-logo " + this.props.className}>Vibes</div>
         <div className="arbitrary">
-          <Header onQuerySubmit={this.handleQuerySubmit} currentQuery={this.props.currentQuery} done={this.props.done} />
+          <Header onQuerySubmit={this.handleQuerySubmit} onStopLive={this.handleStopLive} currentQuery={this.props.currentQuery} done={this.props.done} numTweets={this.props.numTweets}/>
           <Navbar selectContent={this.switchContent}/>
           <Content contentClasses={this.state.contentClasses} mapData={this.props.mapData} chartData={this.props.chartData}/>
           <Footer/>
